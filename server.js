@@ -2,6 +2,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { DatabaseSync } = require('node:sqlite');
 
 function loadEnvironmentFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -26,6 +27,14 @@ loadEnvironmentFile(path.join(__dirname, '.env'));
 
 const port = Number(process.env.PORT) || 3000;
 const publicDirectory = path.join(__dirname, 'public');
+const databasePath = process.env.CASH_DATABASE_PATH || path.join(__dirname, 'data', 'cash.sqlite');
+fs.mkdirSync(path.dirname(databasePath), { recursive: true, mode: 0o700 });
+const accountDatabase = new DatabaseSync(databasePath);
+accountDatabase.exec('CREATE TABLE IF NOT EXISTS owner_accounts (id INTEGER PRIMARY KEY CHECK (id = 1), email TEXT NOT NULL UNIQUE, password_salt TEXT NOT NULL, password_hash TEXT NOT NULL, created_at TEXT NOT NULL)');
+try {
+  fs.chmodSync(databasePath, 0o600);
+} catch {
+}
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -33,6 +42,7 @@ const contentTypes = {
 };
 const financeSessions = new Map();
 const providerTokens = new Map();
+const failedLoginAttempts = new Map();
 const financeSessionCookie = 'cash_finance_session';
 const financeSessionLifetime = 12 * 60 * 60 * 1000;
 
@@ -135,13 +145,43 @@ function financeSessionId(request) {
 
 function hasFinanceSession(request) {
   const sessionId = financeSessionId(request);
-  const expiresAt = sessionId && financeSessions.get(sessionId);
-  if (!expiresAt) return false;
-  if (expiresAt < Date.now()) {
+  const session = sessionId && financeSessions.get(sessionId);
+  if (!session) return false;
+  if (session.expiresAt < Date.now()) {
     financeSessions.delete(sessionId);
     return false;
   }
   return true;
+}
+
+function ownerAccountExists() {
+  return Boolean(accountDatabase.prepare('SELECT 1 AS found FROM owner_accounts WHERE id = 1').get());
+}
+
+function createAccountSession(request, response) {
+  const user = accountDatabase.prepare('SELECT id FROM owner_accounts WHERE id = 1').get();
+  if (!user) throw new Error('Conta proprietária não encontrada.');
+  const sessionId = crypto.randomBytes(32).toString('hex');
+  financeSessions.set(sessionId, { userId: user.id, expiresAt: Date.now() + financeSessionLifetime });
+  const secure = request.socket.encrypted || request.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
+  response.setHeader('set-cookie', `${financeSessionCookie}=${sessionId}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${financeSessionLifetime / 1000}${secure}`);
+}
+
+function hashPassword(password, salt) {
+  return crypto.scryptSync(password, salt, 64).toString('hex');
+}
+
+function isLoginRateLimited(request) {
+  const key = request.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const attempts = (failedLoginAttempts.get(key) || []).filter((timestamp) => now - timestamp < 15 * 60 * 1000);
+  if (attempts.length >= 10) {
+    failedLoginAttempts.set(key, attempts);
+    return true;
+  }
+  attempts.push(now);
+  failedLoginAttempts.set(key, attempts);
+  return false;
 }
 
 function financeProviderConfig(provider) {
@@ -165,7 +205,7 @@ function financeProviders() {
 
 function requireFinanceSession(request, response) {
   if (!hasFinanceSession(request)) {
-    sendJson(response, 401, { error: 'Entre no painel financeiro novamente.' });
+    sendJson(response, 401, { error: 'Faça login no Cash novamente.' });
     return false;
   }
   return true;
@@ -246,7 +286,10 @@ async function handleFinanceSession(request, response) {
   }
 
   if (request.method === 'GET') {
-    sendJson(response, 200, { authenticated: hasFinanceSession(request) });
+    sendJson(response, 200, {
+      authenticated: hasFinanceSession(request),
+      configured: ownerAccountExists(),
+    });
     return;
   }
 
@@ -255,27 +298,93 @@ async function handleFinanceSession(request, response) {
     return;
   }
 
-  if (!process.env.CASH_ACCESS_TOKEN) {
-    sendJson(response, 503, { error: 'Configure CASH_ACCESS_TOKEN no .env para proteger o painel financeiro.' });
+  if (!ownerAccountExists()) {
+    sendJson(response, 409, { error: 'Crie a conta proprietária antes de entrar.' });
+    return;
+  }
+  if (isLoginRateLimited(request)) {
+    sendJson(response, 429, { error: 'Muitas tentativas de acesso. Aguarde 15 minutos e tente novamente.' });
     return;
   }
 
   try {
     const body = await readJson(request);
-    if (!safeSecretEqual(body.passphrase, process.env.CASH_ACCESS_TOKEN)) {
-      sendJson(response, 401, { error: 'Senha do painel incorreta.' });
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    const account = accountDatabase.prepare('SELECT id, password_salt, password_hash FROM owner_accounts WHERE email = ?').get(email);
+    const passwordHash = account && password ? hashPassword(password, account.password_salt) : '';
+    if (!account || !safeSecretEqual(passwordHash, account.password_hash)) {
+      sendJson(response, 401, { error: 'E-mail ou senha incorretos.' });
       return;
     }
-    const sessionId = crypto.randomBytes(32).toString('hex');
-    financeSessions.set(sessionId, Date.now() + financeSessionLifetime);
-    const secure = request.socket.encrypted || request.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
+    createAccountSession(request, response);
     response.writeHead(200, {
       'content-type': 'application/json; charset=utf-8',
-      'set-cookie': `${financeSessionCookie}=${sessionId}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${financeSessionLifetime / 1000}${secure}`,
     });
-    response.end(JSON.stringify({ providers: financeProviders() }));
+    response.end(JSON.stringify({ email: account.email, providers: financeProviders() }));
   } catch {
     sendJson(response, 400, { error: 'Não foi possível validar o acesso.' });
+  }
+}
+
+async function handleAccountRegistration(request, response) {
+  if (!requestHasValidOrigin(request)) {
+    sendJson(response, 403, { error: 'Origem da solicitação não autorizada.' });
+    return;
+  }
+  if (request.method !== 'POST') {
+    sendJson(response, 405, { error: 'Método não permitido.' });
+    return;
+  }
+  if (ownerAccountExists()) {
+    sendJson(response, 409, { error: 'A conta proprietária já existe. Use o login.' });
+    return;
+  }
+
+  let transactionOpen = false;
+  try {
+    const body = await readJson(request);
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    const passwordConfirm = typeof body.passwordConfirm === 'string' ? body.passwordConfirm : '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+      sendJson(response, 400, { error: 'Informe um endereço de e-mail válido.' });
+      return;
+    }
+    if (password.length < 12 || password.length > 128) {
+      sendJson(response, 400, { error: 'Use uma senha com pelo menos 12 caracteres.' });
+      return;
+    }
+    if (password !== passwordConfirm) {
+      sendJson(response, 400, { error: 'As senhas não conferem.' });
+      return;
+    }
+
+    accountDatabase.exec('BEGIN IMMEDIATE');
+    transactionOpen = true;
+    if (ownerAccountExists()) {
+      accountDatabase.exec('ROLLBACK');
+      transactionOpen = false;
+      sendJson(response, 409, { error: 'A conta proprietária já existe. Use o login.' });
+      return;
+    }
+    const salt = crypto.randomBytes(16).toString('hex');
+    const passwordHash = hashPassword(password, salt);
+    accountDatabase.prepare('INSERT INTO owner_accounts (id, email, password_salt, password_hash, created_at) VALUES (1, ?, ?, ?, ?)')
+      .run(email, salt, passwordHash, new Date().toISOString());
+    accountDatabase.exec('COMMIT');
+    transactionOpen = false;
+
+    createAccountSession(request, response);
+    response.writeHead(201, { 'content-type': 'application/json; charset=utf-8' });
+    response.end(JSON.stringify({ email }));
+  } catch (error) {
+    if (transactionOpen) accountDatabase.exec('ROLLBACK');
+    if (String(error.message).includes('UNIQUE constraint failed')) {
+      sendJson(response, 409, { error: 'Já existe uma conta com este e-mail.' });
+      return;
+    }
+    sendJson(response, 400, { error: 'Não foi possível criar a conta.' });
   }
 }
 
@@ -774,32 +883,42 @@ const server = http.createServer((request, response) => {
   const requestUrl = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
 
   if (requestUrl.pathname === '/api/chat' && request.method === 'POST') {
+    if (!requireFinanceSession(request, response)) return;
     handleChat(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/generate' && request.method === 'POST') {
+    if (!requireFinanceSession(request, response)) return;
     handleGenerate(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/product/generate' && request.method === 'POST') {
+    if (!requireFinanceSession(request, response)) return;
     handleProductGeneration(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/affiliates/suggest' && request.method === 'POST') {
+    if (!requireFinanceSession(request, response)) return;
     handleAffiliateSuggestions(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/affiliates/promotion' && request.method === 'POST') {
+    if (!requireFinanceSession(request, response)) return;
     handleAffiliatePromotion(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/finance/session') {
     handleFinanceSession(request, response);
+    return;
+  }
+
+  if (requestUrl.pathname === '/api/auth/register') {
+    handleAccountRegistration(request, response);
     return;
   }
 

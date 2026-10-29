@@ -95,6 +95,24 @@ h1 span { color: #77877a; font-weight: 400; }
 .disclaimer { margin: 9px 0 0; color: #9aa29a; text-align: center; font-size: 9px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 [hidden] { display: none !important; }
+.login-screen { position: relative; display: grid; min-height: 100vh; place-items: center; overflow: hidden; padding: 24px; background-color: #081014; background-image: linear-gradient(90deg, rgba(5, 12, 15, .93) 0%, rgba(5, 12, 15, .76) 54%, rgba(5, 12, 15, .60) 100%), url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=2000&q=85'); background-position: center; background-size: cover; }
+.login-panel { position: relative; z-index: 1; width: min(420px, 100%); padding: 34px; border: 1px solid rgba(115, 179, 160, .32); border-radius: 7px; background: rgba(11, 20, 24, .9); box-shadow: 0 24px 80px rgba(0, 0, 0, .42); backdrop-filter: blur(14px); animation: appear .35s ease both; }
+.login-brand { margin-bottom: 42px; }
+.login-panel .welcome-kicker { color: #84d9b7; }
+.login-panel h1 { margin: 15px 0 10px; color: #e7f0ef; font-size: 34px; line-height: 1.17; }
+.login-panel h1 span { color: #8eb6aa; font-weight: 400; }
+.login-description { margin: 0 0 22px; color: #91a1a3; font-size: 11px; line-height: 1.7; }
+.login-form { display: grid; gap: 10px; }
+.signup-confirmation { display: grid; gap: 10px; }
+.login-form input { width: 100%; min-height: 44px; padding: 0 11px; border: 1px solid #2b3d41; border-radius: 4px; outline: 0; background: #0c1519; color: #e3eeeb; font: 12px 'Manrope', sans-serif; }
+.login-form input:focus { border-color: #62bb99; box-shadow: 0 0 0 3px rgba(105, 212, 171, .1); }
+.login-form .save-transaction { width: 100%; margin-top: 5px; }
+.login-mode-toggle { margin-top: 14px; padding: 5px 0; border: 0; background: transparent; color: #91e2bf; font-size: 10px; cursor: pointer; }
+.login-mode-toggle:hover { color: #c1f9df; text-decoration: underline; text-underline-offset: 3px; }
+.login-status { min-height: 28px; margin: 3px 0 0; color: #819597; font-size: 9px; line-height: 1.6; }
+.side-logout { margin: 12px 0; padding: 6px 10px; border: 0; background: transparent; color: #8b9b9d; text-align: left; font-size: 10px; cursor: pointer; }
+.side-logout:hover { color: #eea59a; }
+.mobile-logout { display: none; }
 .side-navigation { display: grid; gap: 5px; }
 .nav-item { display: flex; align-items: center; gap: 11px; min-height: 41px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: #78827b; text-align: left; font-size: 12px; font-weight: 600; cursor: pointer; }
 .nav-item:hover { background: #f6f8f4; color: var(--ink); }
@@ -550,4 +568,10 @@ body {
   .ad-budget-row .ad-budget-details { grid-column: 1 / -1; }
   .ad-budget-row .text-action { justify-self: start; }
   .ad-budget-row .remove-transaction { grid-column: 2; grid-row: 2; justify-self: end; }
+  .login-screen { padding: 16px; }
+  .login-screen { background-position: 58% center; }
+  .login-panel { padding: 25px 20px; }
+  .login-brand { margin-bottom: 34px; }
+  .side-logout { display: none; }
+  .mobile-logout { display: grid; width: 30px; flex: 0 0 auto; }
 }

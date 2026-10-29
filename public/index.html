@@ -9,7 +9,32 @@
     <script src="/marketing.js" defer></script>
   </head>
   <body>
-    <main class="app-shell">
+    <section class="login-screen" id="login-screen" aria-label="Acesso ao Cash">
+      <div class="login-panel">
+        <a class="brand login-brand" href="/" aria-label="Cash">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span>cash<span class="brand-period">.</span></span>
+        </a>
+        <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> MARKETING OS</div>
+        <h1 id="login-title">Entre no<br><span>seu espaço.</span></h1>
+        <p class="login-description" id="login-description">Use seu e-mail e senha para acessar o Cash.</p>
+        <form class="login-form" id="app-login-form">
+          <label class="field-label" for="app-email">E-mail</label>
+          <input id="app-email" name="email" type="email" autocomplete="username" maxlength="254" required>
+          <label class="field-label" for="app-password">Senha</label>
+          <input id="app-password" name="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required>
+          <div class="signup-confirmation" id="signup-confirmation" hidden>
+            <label class="field-label" for="app-password-confirm">Confirme a senha</label>
+            <input id="app-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="12" maxlength="128">
+          </div>
+          <button class="save-transaction" id="app-login-submit" type="submit">Entrar no Cash <span aria-hidden="true">→</span></button>
+          <p class="login-status" id="app-login-status" role="status">Sua sessão é privada e expira após 12 horas.</p>
+        </form>
+        <button class="login-mode-toggle" id="login-mode-toggle" type="button" hidden>Criar conta proprietária</button>
+      </div>
+    </section>
+
+    <main class="app-shell" id="app-content" hidden>
       <aside class="sidebar" aria-label="Navegação">
         <a class="brand" href="/" aria-label="Cash, início">
           <span class="brand-mark" aria-hidden="true">C</span>
@@ -55,6 +80,7 @@
             <div class="status-caption" id="connection-caption">Cash marketing OS</div>
           </div>
         </div>
+        <button class="side-logout" type="button" data-app-logout>Sair do Cash</button>
       </aside>
 
       <section class="conversation dashboard-view" id="workspace-view" aria-label="Central de marketing">
@@ -73,6 +99,7 @@
           </nav>
           <div class="topbar-label">CASH / MARKETING OS</div>
           <button class="add-transaction" type="button" data-page="create"><span aria-hidden="true">＋</span> Nova campanha</button>
+          <button class="icon-button mobile-logout" type="button" data-app-logout aria-label="Sair do Cash" title="Sair do Cash"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" /></svg></button>
         </header>
 
         <div class="dashboard-scroll">
@@ -275,6 +302,7 @@
             <button class="mobile-nav-item active" type="button" data-page="assistant">IA</button>
           </nav>
           <div class="topbar-label"><span class="live-dot" aria-hidden="true"></span> ESTRATEGISTA DE MARKETING</div>
+          <button class="icon-button mobile-logout" type="button" data-app-logout aria-label="Sair do Cash" title="Sair do Cash"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" /></svg></button>
           <button class="icon-button" id="clear-chat" type="button" aria-label="Limpar conversa" title="Limpar conversa">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
           </button>

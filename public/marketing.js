@@ -4,6 +4,13 @@ const messagesElement = document.querySelector('#messages');
 const chatScroll = document.querySelector('#chat-scroll');
 const sendButton = document.querySelector('#send-button');
 const welcome = document.querySelector('#welcome');
+const appContent = document.querySelector('#app-content');
+const loginScreen = document.querySelector('#login-screen');
+const appLoginForm = document.querySelector('#app-login-form');
+const appLoginEmail = document.querySelector('#app-email');
+const appLoginPassword = document.querySelector('#app-password');
+const appLoginPasswordConfirm = document.querySelector('#app-password-confirm');
+const loginModeToggle = document.querySelector('#login-mode-toggle');
 const history = [];
 const productForm = document.querySelector('#product-form');
 const campaignForm = document.querySelector('#campaign-form');
@@ -86,6 +93,9 @@ let adBudgets = readLocal(adBudgetsKey, []);
 let moneyEntries = readLocal(moneyEntriesKey, []);
 let liveBalance = null;
 let financeAuthenticated = false;
+let appAuthenticated = false;
+let accountConfigured = false;
+let accountCreationMode = false;
 if (!profile || typeof profile !== 'object' || Array.isArray(profile)) profile = {};
 if (!Array.isArray(campaigns)) campaigns = [];
 if (!Array.isArray(affiliateBatches)) affiliateBatches = [];
@@ -97,6 +107,99 @@ moneyEntries = moneyEntries.filter((entry) => entry
   && ['sale', 'ad', 'fee', 'refund', 'withdrawal'].includes(entry.type)
   && Number.isFinite(entry.amount)
   && typeof entry.date === 'string');
+
+function setAppAuthentication(authenticated) {
+  appAuthenticated = authenticated;
+  appContent.hidden = !authenticated;
+  loginScreen.hidden = authenticated;
+  if (!authenticated) {
+    appLoginPassword.value = '';
+    window.setTimeout(() => appLoginPassword.focus(), 0);
+  }
+}
+
+function setAccountCreationMode(enabled) {
+  accountCreationMode = enabled && !accountConfigured;
+  document.querySelector('#login-title').innerHTML = accountCreationMode
+    ? 'Crie sua<br><span>conta proprietária.</span>'
+    : 'Entre no<br><span>seu espaço.</span>';
+  document.querySelector('#login-description').textContent = accountCreationMode
+    ? 'Cadastre o e-mail e uma senha forte para proteger esta instalação do Cash.'
+    : 'Use seu e-mail e senha para acessar o Cash.';
+  document.querySelector('#signup-confirmation').hidden = !accountCreationMode;
+  appLoginPasswordConfirm.required = accountCreationMode;
+  appLoginPassword.autocomplete = accountCreationMode ? 'new-password' : 'current-password';
+  document.querySelector('#app-login-submit').innerHTML = accountCreationMode
+    ? 'Criar conta e entrar <span aria-hidden="true">→</span>'
+    : 'Entrar no Cash <span aria-hidden="true">→</span>';
+  loginModeToggle.hidden = accountConfigured;
+  loginModeToggle.textContent = accountCreationMode ? 'Já tenho uma conta' : 'Criar conta proprietária';
+}
+
+loginModeToggle.addEventListener('click', () => setAccountCreationMode(!accountCreationMode));
+
+async function checkAppSession() {
+  try {
+    const response = await fetch('/api/finance/session');
+    const result = await response.json();
+    accountConfigured = result.configured === true;
+    setAccountCreationMode(!accountConfigured);
+    setAppAuthentication(response.ok && result.authenticated === true);
+    if (!result.authenticated && result.configured === false) {
+      document.querySelector('#app-login-status').textContent = 'Esta instalação ainda não tem conta. Crie a conta proprietária para começar.';
+    }
+  } catch {
+    setAppAuthentication(false);
+    document.querySelector('#app-login-status').textContent = 'Servidor indisponível. Recarregue o Cash para tentar novamente.';
+  }
+}
+
+async function logoutCash() {
+  try {
+    await fetch('/api/finance/session', { method: 'DELETE' });
+  } finally {
+    financeAuthenticated = false;
+    liveBalance = null;
+    setAppAuthentication(false);
+    document.querySelector('#app-login-status').textContent = 'Você saiu do Cash.';
+  }
+}
+
+appLoginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const status = document.querySelector('#app-login-status');
+  const button = document.querySelector('#app-login-submit');
+  button.disabled = true;
+  status.textContent = 'Validando acesso...';
+  try {
+    const route = accountCreationMode ? '/api/auth/register' : '/api/finance/session';
+    const payload = { email: appLoginEmail.value, password: appLoginPassword.value };
+    if (accountCreationMode) payload.passwordConfirm = appLoginPasswordConfirm.value;
+    const response = await fetch(route, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Não foi possível entrar.');
+    accountConfigured = true;
+    setAccountCreationMode(false);
+    appLoginEmail.value = result.email || appLoginEmail.value;
+    appLoginPassword.value = '';
+    appLoginPasswordConfirm.value = '';
+    setAppAuthentication(true);
+    status.textContent = 'Acesso autorizado.';
+  } catch (error) {
+    status.textContent = error.message || 'Falha ao validar acesso.';
+  } finally {
+    button.disabled = false;
+    if (!appAuthenticated) appLoginPassword.focus();
+  }
+});
+
+document.querySelectorAll('[data-app-logout]').forEach((button) => {
+  button.addEventListener('click', logoutCash);
+});
 
 for (const [name, value] of Object.entries(profile)) {
   const field = productForm.elements.namedItem(name);
@@ -934,13 +1037,7 @@ secureWithdrawalForm.addEventListener('submit', async (event) => {
 });
 
 document.querySelector('#finance-logout').addEventListener('click', async () => {
-  await fetch('/api/finance/session', { method: 'DELETE' });
-  financeAuthenticated = false;
-  liveBalance = null;
-  document.querySelector('#finance-login-panel').hidden = false;
-  document.querySelector('#finance-connected-panel').hidden = true;
-  document.querySelector('#summary-profit-label').textContent = 'LUCRO LIVRE ESTIMADO';
-  renderFinance();
+  await logoutCash();
 });
 
 function saveMoneyEntries() {
@@ -1129,6 +1226,7 @@ renderIntegrations();
 renderAffiliateIdeas();
 renderGeneratedProduct(generatedProduct);
 renderAdBudgets();
+checkAppSession();
 window.setInterval(() => {
   if (financeAuthenticated && !document.querySelector('[data-workspace-page="finance"]').hidden) refreshProviderBalance();
 }, 60_000);
