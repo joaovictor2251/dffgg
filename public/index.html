@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1216">
+    <title>Cash | Marketing OS</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/marketing.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Navegação">
+        <a class="brand" href="/" aria-label="Cash, início">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span>cash<span class="brand-period">.</span></span>
+        </a>
+        <button class="new-chat" id="new-chat" type="button" hidden>
+          <span aria-hidden="true">＋</span> Nova conversa
+        </button>
+        <div class="sidebar-label">NAVEGAÇÃO</div>
+        <nav class="side-navigation" aria-label="Seções do Cash">
+          <button class="nav-item active" type="button" data-page="dashboard">
+            <span class="nav-icon" aria-hidden="true">▦</span> Visão geral
+          </button>
+          <button class="nav-item" type="button" data-page="finance">
+            <span class="nav-icon" aria-hidden="true">＄</span> Lucro e saques
+          </button>
+          <button class="nav-item" type="button" data-page="campaigns">
+            <span class="nav-icon" aria-hidden="true">▤</span> Campanhas
+          </button>
+          <button class="nav-item" type="button" data-page="create">
+            <span class="nav-icon" aria-hidden="true">✳</span> Criar campanha
+          </button>
+          <button class="nav-item" type="button" data-page="product">
+            <span class="nav-icon" aria-hidden="true">◈</span> Produto
+          </button>
+          <button class="nav-item" type="button" data-page="affiliates">
+            <span class="nav-icon" aria-hidden="true">↗</span> Afiliados
+          </button>
+          <button class="nav-item" type="button" data-page="promotion">
+            <span class="nav-icon" aria-hidden="true">◎</span> Impulsionar
+          </button>
+          <button class="nav-item" type="button" data-page="integrations">
+            <span class="nav-icon" aria-hidden="true">⇄</span> Integrações
+          </button>
+          <button class="nav-item" type="button" data-page="assistant">
+            <span class="nav-icon" aria-hidden="true">◌</span> Assistente IA
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="status-dot" aria-hidden="true"></div>
+          <div>
+            <div class="status-title" id="connection-status">Verificando conexão</div>
+            <div class="status-caption" id="connection-caption">Cash marketing OS</div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="conversation dashboard-view" id="workspace-view" aria-label="Central de marketing">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">C</span> cash<span class="brand-period">.</span></div>
+          <nav class="mobile-switcher" aria-label="Seções do Cash">
+            <button class="mobile-nav-item active" type="button" data-page="dashboard">Visão</button>
+            <button class="mobile-nav-item" type="button" data-page="finance">Lucro</button>
+            <button class="mobile-nav-item" type="button" data-page="campaigns">Campanhas</button>
+            <button class="mobile-nav-item" type="button" data-page="create">Criar</button>
+            <button class="mobile-nav-item" type="button" data-page="product">Produto</button>
+            <button class="mobile-nav-item" type="button" data-page="affiliates">Afiliados</button>
+            <button class="mobile-nav-item" type="button" data-page="promotion">Impulsionar</button>
+            <button class="mobile-nav-item" type="button" data-page="integrations">Conectar</button>
+            <button class="mobile-nav-item" type="button" data-page="assistant">IA</button>
+          </nav>
+          <div class="topbar-label">CASH / MARKETING OS</div>
+          <button class="add-transaction" type="button" data-page="create"><span aria-hidden="true">＋</span> Nova campanha</button>
+        </header>
+
+        <div class="dashboard-scroll">
+          <div class="dashboard-content">
+            <section class="workspace-page" data-workspace-page="dashboard">
+              <div class="dashboard-heading">
+                <div>
+                  <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> CENTRAL DE CRESCIMENTO</div>
+                  <h1>Marketing em movimento<span class="heading-period">.</span></h1>
+                  <p class="month-label">Estratégia, conteúdo e campanhas em um só lugar.</p>
+                </div>
+                <button class="add-transaction mobile-add" type="button" data-page="create"><span aria-hidden="true">＋</span> Criar campanha</button>
+              </div>
+
+              <div class="metric-grid finance-summary" aria-label="Resumo das campanhas">
+                <article class="metric-card balance-card"><div class="metric-label" id="summary-profit-label">LUCRO LIVRE ESTIMADO</div><div class="metric-value" id="metric-free-profit">R$ 0,00</div><div class="metric-foot">Após custos e saques registrados</div></article>
+                <article class="metric-card"><div class="metric-label">CAMPANHAS CRIADAS</div><div class="metric-value" id="metric-campaigns">0</div><div class="metric-foot">Biblioteca local</div></article>
+                <article class="metric-card"><div class="metric-label">RASCUNHOS</div><div class="metric-value" id="metric-drafts">0</div><div class="metric-foot">Aguardando sua revisão</div></article>
+                <article class="metric-card"><div class="metric-label">PRODUTO ATIVO</div><div class="metric-value metric-product" id="metric-product">Não configurado</div><div class="metric-foot" id="metric-product-detail">Adicione os dados do produto</div></article>
+              </div>
+
+              <section class="launch-banner">
+                <div class="launch-orbit" aria-hidden="true"><span>✳</span></div>
+                <div class="launch-copy"><span class="banner-label">ESTÚDIO DE CAMPANHAS</span><h2>Transforme sua oferta em uma campanha.</h2><p>Gere anúncios, conteúdo social, e-mails e páginas de venda alinhados ao seu produto.</p></div>
+                <button class="launch-button" type="button" data-page="create">Começar criação <span aria-hidden="true">↗</span></button>
+              </section>
+
+              <section class="panel activity-panel campaign-preview-panel">
+                <div class="panel-heading activity-heading"><div><h2>Campanhas recentes</h2><p>Seus materiais gerados, prontos para revisar</p></div><button class="text-action" type="button" data-page="campaigns">Ver biblioteca →</button></div>
+                <div class="campaign-list" id="recent-campaigns"></div>
+                <div class="empty-activity" id="empty-campaigns"><span class="empty-mark" aria-hidden="true">✳</span><span>Nenhuma campanha criada ainda.</span><button class="text-action" type="button" data-page="create">Criar primeira campanha</button></div>
+              </section>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="finance" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">RESULTADO DA SUA OPERAÇÃO</div><h1>Lucro e saques<span class="heading-period">.</span></h1><p class="month-label">Estimativa calculada com movimentações que você registrar.</p></div><button class="add-transaction mobile-add" id="open-money-entry-mobile" type="button">＋ Registrar</button></div>
+              <section class="panel finance-login" id="finance-login-panel">
+                <div class="brief-section-title"><span class="step-number">◇</span><div><h2>Acessar saldo e saques</h2><p>Entre no painel financeiro protegido para consultar os valores reais do checkout.</p></div></div>
+                <form id="finance-login-form" class="finance-login-form">
+                  <div><label class="field-label" for="finance-passphrase">Senha do painel</label><input id="finance-passphrase" name="passphrase" type="password" autocomplete="current-password" required></div>
+                  <button class="save-transaction" type="submit">Acessar painel financeiro</button>
+                </form>
+                <p class="generation-status" id="finance-login-status" role="status">Configure CASH_ACCESS_TOKEN no .env para ativar este acesso.</p>
+              </section>
+              <section class="finance-connected" id="finance-connected-panel" hidden>
+                <div class="finance-live-panel">
+                  <div class="finance-live-heading"><div><div class="metric-label">SALDO OFICIAL DO CHECKOUT</div><h2 id="live-provider-name">Kiwify</h2></div><div class="finance-live-actions"><button class="icon-button" id="refresh-provider-balance" type="button" title="Atualizar saldo" aria-label="Atualizar saldo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5m8-3a6 6 0 0 0-10-2L4 12m16 0-3 5a6 6 0 0 1-10 0" /></svg></button><button class="text-action" id="finance-logout" type="button">Sair</button></div></div>
+                  <label class="field-label" for="live-provider-select">Conta conectada</label>
+                  <select id="live-provider-select" class="withdrawal-select"><option value="kiwify">Kiwify</option><option value="cakto">Cakto</option></select>
+                  <div class="live-balance-grid"><div><span>Disponível para saque</span><strong id="live-available">--</strong></div><div><span>Em processamento</span><strong id="live-pending">--</strong></div></div>
+                  <div class="generation-actions"><button class="save-transaction" id="open-secure-withdrawal" type="button" disabled>Solicitar saque no Cash</button><span class="generation-status" id="live-balance-status" role="status">Saldo ainda não consultado.</span></div>
+                  <div class="finance-disclaimer">O valor vem da API oficial. Atualize antes de sacar; a plataforma pode alterar o saldo, aplicar taxas ou colocar o pedido em análise.</div>
+                </div>
+              </section>
+              <div class="metric-grid finance-metrics" aria-label="Resumo financeiro">
+                <article class="metric-card balance-card"><div class="metric-label">LUCRO LIVRE ESTIMADO</div><div class="metric-value" id="finance-available">R$ 0,00</div><div class="metric-foot">Depois de custos e saques anotados</div></article>
+                <article class="metric-card"><div class="metric-label">VENDAS APROVADAS</div><div class="metric-value" id="finance-sales">R$ 0,00</div><div class="metric-foot">Movimentações registradas</div></article>
+                <article class="metric-card"><div class="metric-label">CUSTOS E REEMBOLSOS</div><div class="metric-value" id="finance-costs">R$ 0,00</div><div class="metric-foot">Anúncios, taxas e reembolsos</div></article>
+                <article class="metric-card"><div class="metric-label">SAQUES ANOTADOS</div><div class="metric-value" id="finance-withdrawals">R$ 0,00</div><div class="metric-foot">Valores que você já sacou</div></article>
+              </div>
+              <div class="finance-formula"><span class="formula-mark" aria-hidden="true">∑</span><span>Disponível estimado = vendas aprovadas − anúncios − taxas − reembolsos − saques anotados.</span></div>
+              <div class="finance-actions"><button class="save-transaction" id="open-money-entry" type="button">＋ Registrar movimentação</button><button class="launch-button" id="open-withdrawal" type="button">Abrir plataforma para saque <span aria-hidden="true">↗</span></button></div>
+              <section class="panel activity-panel finance-activity">
+                <div class="panel-heading activity-heading"><div><h2>Movimentações</h2><p>Dados salvos somente neste navegador</p></div><span class="activity-count" id="money-entry-count">0 registros</span></div>
+                <div id="money-entry-list" class="money-entry-list"></div>
+                <div class="empty-activity" id="empty-money-entries"><span class="empty-mark" aria-hidden="true">＄</span><span>Registre vendas e custos para estimar seu lucro.</span><button class="text-action" id="first-money-entry" type="button">Adicionar movimentação</button></div>
+              </section>
+              <p class="finance-disclaimer">Estimativa manual, não é o saldo oficial da Kiwify, Cakto ou Hotmart. O Cash não guarda nem transfere dinheiro. Saques são feitos no painel do seu checkout.</p>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="campaigns" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">BIBLIOTECA</div><h1>Suas campanhas<span class="heading-period">.</span></h1><p class="month-label">Materiais gerados e organizados para revisão.</p></div><button class="add-transaction mobile-add" type="button" data-page="create">＋ Criar</button></div>
+              <div class="campaign-list campaign-library" id="campaign-library"></div>
+              <div class="empty-activity" id="empty-library"><span class="empty-mark" aria-hidden="true">✳</span><span>Seu próximo lançamento começa com uma ideia.</span><button class="text-action" type="button" data-page="create">Criar campanha</button></div>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="create" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">GERAÇÃO ASSISTIDA POR IA</div><h1>Novo briefing<span class="heading-period">.</span></h1><p class="month-label">Defina a direção. Revise cada peça antes de publicar.</p></div></div>
+              <form class="panel brief-form" id="campaign-form">
+                <div class="brief-section-title"><span class="step-number">01</span><div><h2>O que vamos criar?</h2><p>Escolha o formato e o canal para esta campanha.</p></div></div>
+                <div class="form-row">
+                  <div><label class="field-label" for="campaign-name">Nome da campanha</label><input id="campaign-name" name="name" maxlength="80" placeholder="Ex.: Lançamento de primavera" required></div>
+                  <div><label class="field-label" for="campaign-format">Formato</label><select id="campaign-format" name="format"><option value="campanha completa">Campanha completa</option><option value="anúncios pagos">Anúncios pagos</option><option value="sequência de e-mails">Sequência de e-mails</option><option value="conteúdo para redes sociais">Conteúdo para redes sociais</option><option value="página de vendas">Página de vendas</option></select></div>
+                </div>
+                <div class="form-row">
+                  <div><label class="field-label" for="campaign-channel">Canal principal</label><select id="campaign-channel" name="channel"><option>Instagram</option><option>Meta Ads</option><option>Google Ads</option><option>E-mail</option><option>Landing page</option><option>TikTok</option></select></div>
+                  <div><label class="field-label" for="campaign-checkout">Checkout / plataforma de venda</label><select id="campaign-checkout" name="checkout"><option value="link direto">Link direto</option><option>Kiwify</option><option>Cakto</option><option>Hotmart</option></select></div>
+                </div>
+                <div><label class="field-label" for="campaign-objective">Objetivo</label><select id="campaign-objective" name="objective"><option>Gerar vendas</option><option>Captar leads com consentimento</option><option>Apresentar o produto</option><option>Reengajar clientes</option></select></div>
+                <div><label class="field-label" for="campaign-angle">Ângulo ou contexto (opcional)</label><textarea id="campaign-angle" name="angle" rows="3" maxlength="500" placeholder="Ex.: foco em iniciantes, campanha de lançamento, condição especial real..."></textarea></div>
+                <div class="product-brief" id="product-brief"><span class="status-pip" aria-hidden="true"></span><span id="product-brief-text">Configure seu produto para gerar uma campanha mais relevante.</span><button class="text-action" type="button" data-page="product">Editar produto</button></div>
+                <div class="generation-actions"><button class="save-transaction" id="generate-campaign" type="submit"><span aria-hidden="true">✳</span> Gerar com Cash AI</button><span class="generation-status" id="generation-status" role="status">Rascunhos ficam salvos neste navegador.</span></div>
+              </form>
+              <section class="panel output-panel" id="generation-output" hidden><div class="panel-heading"><div><h2 id="output-title">Campanha gerada</h2><p>Revise o conteúdo e ajuste antes de usar.</p></div><button class="text-action" id="copy-output" type="button">Copiar texto</button></div><pre class="campaign-output" id="output-content"></pre><div class="approval-note">RASCUNHO · Publicação e envio exigem sua aprovação e integração de canal.</div></section>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="integrations" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">CANAIS E CHECKOUTS</div><h1>Integrações<span class="heading-period">.</span></h1><p class="month-label">Conecte seus canais para preparar a publicação e acompanhar vendas.</p></div></div>
+              <div class="integration-group"><div class="integration-group-heading"><h2>Redes sociais</h2><span>PUBLICAÇÃO E CONTEÚDO</span></div><div class="integration-grid" id="social-integrations"></div></div>
+              <div class="integration-group"><div class="integration-group-heading"><h2>Plataformas de venda</h2><span>CHECKOUT E EVENTOS DE VENDA</span></div><div class="integration-grid" id="sales-integrations"></div></div>
+              <div class="integration-security"><span class="security-mark" aria-hidden="true">◇</span><p>Credenciais e tokens não devem ser salvos neste navegador. A conexão real precisa ser configurada no servidor e autorizada na plataforma.</p></div>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="affiliates" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">PRODUTOS QUE VOCÊ PROMOVE</div><h1>Produtos afiliados<span class="heading-period">.</span></h1><p class="month-label">Cadastre ofertas aderidas e acompanhe as vendas informadas.</p></div></div>
+              <div class="affiliate-overview-metrics">
+                <article class="metric-card balance-card"><div class="metric-label">PRODUTOS CADASTRADOS</div><div class="metric-value" id="affiliate-product-count">0</div></article>
+                <article class="metric-card"><div class="metric-label">VENDAS INFORMADAS</div><div class="metric-value" id="affiliate-sales-count">0</div></article>
+              </div>
+              <form class="panel brief-form affiliate-product-form" id="affiliate-product-form">
+                <div class="brief-section-title"><span class="step-number">01</span><div><h2>Cadastrar produto ao qual você se afiliou</h2><p>Use os dados e o link fornecidos pela plataforma.</p></div></div>
+                <div class="form-row"><div><label class="field-label" for="affiliate-product-name">Nome da oferta</label><input id="affiliate-product-name" name="name" maxlength="120" placeholder="Nome como aparece no checkout" required></div><div><label class="field-label" for="affiliate-product-platform">Plataforma</label><select id="affiliate-product-platform" name="platform"><option>Kiwify</option><option>Cakto</option><option>Hotmart</option><option>Outra</option></select></div></div>
+                <div class="form-row"><div><label class="field-label" for="affiliate-product-link">Seu link de afiliado</label><input id="affiliate-product-link" name="link" type="url" maxlength="1000" placeholder="https://..." required></div><div><label class="field-label" for="affiliate-product-commission">Comissão informada (%)</label><input id="affiliate-product-commission" name="commission" type="number" min="0" max="100" step="0.01" placeholder="Ex.: 35"></div></div>
+                <div class="generation-actions"><button class="save-transaction" type="submit">Salvar produto afiliado</button><span class="generation-status" id="affiliate-product-status" role="status">Vendas são contagens informadas por você.</span></div>
+              </form>
+              <section class="affiliate-products-section"><div class="panel-heading"><div><h2>Minhas ofertas</h2><p>Links e vendas registradas neste navegador</p></div></div><div class="affiliate-product-list" id="affiliate-product-list"></div><div class="empty-activity" id="empty-affiliate-products"><span class="empty-mark" aria-hidden="true">↗</span><span>Cadastre uma oferta após aderir ao programa de afiliados.</span></div></section>
+              <div class="affiliate-ideas-heading"><div><h2>Descobrir ideias de produtos</h2><p>A IA sugere tipos de oferta para você pesquisar.</p></div></div>
+              <form class="panel brief-form affiliate-form" id="affiliate-suggestion-form">
+                <div class="brief-section-title"><span class="step-number">↗</span><div><h2>O que seu público precisa?</h2><p>A IA sugere tipos de oferta e critérios de validação, não inventa links ou comissões.</p></div></div>
+                <div><label class="field-label" for="affiliate-niche">Nicho ou tema</label><input id="affiliate-niche" name="niche" maxlength="300" placeholder="Ex.: organização financeira para autônomos" required></div>
+                <div class="form-row">
+                  <div><label class="field-label" for="affiliate-audience">Público que você alcança (opcional)</label><input id="affiliate-audience" name="audience" maxlength="250" placeholder="Ex.: profissionais iniciantes"></div>
+                  <div><label class="field-label" for="affiliate-platform">Plataforma para pesquisar</label><select id="affiliate-platform" name="platform"><option value="qualquer plataforma">Qualquer plataforma</option><option>Kiwify</option><option>Cakto</option><option>Hotmart</option></select></div>
+                </div>
+                <div><label class="field-label" for="affiliate-context">Contexto adicional (opcional)</label><textarea id="affiliate-context" name="context" rows="2" maxlength="400" placeholder="Ex.: prefiro produtos de baixo custo ou conteúdo educacional"></textarea></div>
+                <div class="generation-actions"><button class="save-transaction" id="suggest-affiliate-products" type="submit"><span aria-hidden="true">✳</span> Sugerir produtos com IA</button><span class="generation-status" id="affiliate-status" role="status">As ideias serão salvas neste navegador.</span></div>
+              </form>
+              <div class="affiliate-results" id="affiliate-results"></div>
+              <div class="empty-activity affiliate-empty" id="affiliate-empty"><span class="empty-mark" aria-hidden="true">↗</span><span>As sugestões geradas aparecerão aqui.</span></div>
+              <p class="finance-disclaimer">Confirme existência, qualidade, preço, comissão, regras de divulgação e autorização para promover cada oferta diretamente na plataforma. As sugestões da IA não são produtos verificados.</p>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="promotion" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">DISTRIBUIÇÃO DE CONTEÚDO</div><h1>Impulsionar<span class="heading-period">.</span></h1><p class="month-label">Planeje o orçamento e monte uma cadência de conteúdo para alcançar mais pessoas.</p></div></div>
+              <section class="panel ad-budget-panel">
+                <div class="panel-heading"><div><h2>Adicionar saldo de anúncios</h2><p>Planeje o valor e abra a cobrança oficial da plataforma.</p></div><div class="planned-budget-total"><span>ORÇAMENTO PLANEJADO</span><strong id="planned-budget-total">R$ 0,00</strong></div></div>
+                <form class="ad-budget-form" id="ad-budget-form">
+                  <div class="form-row"><div><label class="field-label" for="ad-budget-platform">Plataforma de anúncios</label><select id="ad-budget-platform" name="platform"><option>Meta Ads</option><option>TikTok Ads</option><option>Google Ads</option></select></div><div><label class="field-label" for="ad-budget-amount">Orçamento (R$)</label><input id="ad-budget-amount" name="amount" type="number" min="1" max="100000000" step="0.01" placeholder="Ex.: 50,00" required></div></div>
+                  <div><label class="field-label" for="ad-budget-campaign">Campanha (opcional)</label><input id="ad-budget-campaign" name="campaign" maxlength="100" placeholder="Ex.: Lançamento de maio"></div>
+                  <div class="generation-actions"><button class="save-transaction" type="submit">Salvar orçamento planejado</button><span class="generation-status">O pagamento e a ativação do saldo ocorrem fora do Cash.</span></div>
+                </form>
+                <div class="ad-budget-list" id="ad-budget-list"></div>
+                <div class="empty-activity ad-budget-empty" id="empty-ad-budgets"><span class="empty-mark" aria-hidden="true">＋</span><span>Nenhum orçamento planejado.</span></div>
+              </section>
+              <p class="finance-disclaimer">O Cash não cobra, armazena nem transfere dinheiro. Confirme método de pagamento, valor e limites dentro da sua conta de anúncios.</p>
+              <form class="panel brief-form promotion-form" id="promotion-form">
+                <div class="brief-section-title"><span class="step-number">✳</span><div><h2>Plano de divulgação com IA</h2><p>Escolha uma oferta cadastrada e os canais para criar uma cadência de conteúdo.</p></div></div>
+                <div class="form-row"><div><label class="field-label" for="promotion-product">Produto afiliado</label><select id="promotion-product" name="productId" required><option value="">Cadastre um produto primeiro</option></select></div><div><label class="field-label" for="promotion-duration">Duração do plano</label><select id="promotion-duration" name="duration"><option value="7 dias">7 dias</option><option value="14 dias">14 dias</option><option value="30 dias">30 dias</option></select></div></div>
+                <div class="form-row"><div><label class="field-label" for="promotion-channels">Canais de divulgação</label><select id="promotion-channels" name="channels"><option>Instagram e TikTok</option><option>Instagram e Facebook</option><option>TikTok e YouTube Shorts</option><option>Instagram, TikTok e e-mail</option></select></div><div><label class="field-label" for="promotion-frequency">Frequência</label><select id="promotion-frequency" name="frequency"><option>3 publicações por semana</option><option>5 publicações por semana</option><option>1 publicação por dia</option></select></div></div>
+                <div><label class="field-label" for="promotion-goal">Objetivo ou tom (opcional)</label><input id="promotion-goal" name="goal" maxlength="300" placeholder="Ex.: conteúdo educativo, sem promessas de resultado"></div>
+                <div class="product-brief"><span class="status-pip" aria-hidden="true"></span><span>O Cash cria o calendário e os textos. Publicar automaticamente ou comprar anúncios exige integração e autorização da plataforma.</span><button class="text-action" type="button" data-page="integrations">Ver integrações</button></div>
+                <div class="generation-actions"><button class="save-transaction" id="generate-promotion" type="submit">Gerar plano de divulgação</button><span class="generation-status" id="promotion-status" role="status">Nenhuma publicação ou compra de mídia será feita.</span></div>
+              </form>
+              <div class="promotion-plan-list" id="promotion-plan-list"></div>
+              <div class="empty-activity" id="empty-promotion-plans"><span class="empty-mark" aria-hidden="true">◎</span><span>Seus planos de divulgação aparecerão aqui.</span></div>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="product" hidden>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">BASE DA SUA COMUNICAÇÃO</div><h1>Seu produto<span class="heading-period">.</span></h1><p class="month-label">Informações verdadeiras ajudam a IA a criar mensagens melhores.</p></div></div>
+              <form class="panel brief-form product-generator-form" id="product-generation-form">
+                <div class="brief-section-title"><span class="step-number">✳</span><div><h2>Crie um produto digital com IA</h2><p>Descreva a ideia. O Cash monta o conteúdo e a estrutura para você revisar.</p></div></div>
+                <div><label class="field-label" for="product-idea">Qual problema ou tema o produto vai abordar?</label><textarea id="product-idea" name="idea" rows="3" maxlength="700" placeholder="Ex.: ajudar pequenos negócios a fotografar seus produtos usando apenas o celular" required></textarea></div>
+                <div class="form-row">
+                  <div><label class="field-label" for="product-kind">Formato do produto</label><select id="product-kind" name="format"><option value="ebook">E-book completo</option><option value="mini-course">Mini-curso com aulas e exercícios</option><option value="workbook">Workbook prático</option><option value="template-pack">Kit de templates editáveis</option><option value="guide">Guia passo a passo</option></select></div>
+                  <div><label class="field-label" for="product-idea-audience">Público (opcional)</label><input id="product-idea-audience" name="audience" maxlength="250" placeholder="Ex.: empreendedores iniciantes"></div>
+                </div>
+                <div class="generation-actions"><button class="save-transaction" id="generate-product" type="submit"><span aria-hidden="true">✳</span> Gerar produto completo</button><span class="generation-status" id="product-generation-status" role="status">A entrega fica salva neste navegador.</span></div>
+              </form>
+              <section class="panel output-panel generated-product-panel" id="generated-product-panel" hidden>
+                <div class="panel-heading"><div><div class="welcome-kicker">PRODUTO GERADO · REVISE ANTES DE VENDER</div><h2 id="generated-product-name">Seu produto</h2><p id="generated-product-price"></p></div><button class="text-action" id="copy-product" type="button">Copiar conteúdo</button></div>
+                <pre class="campaign-output" id="generated-product-content"></pre>
+                <div class="generation-actions product-output-actions"><button class="save-transaction" id="use-generated-product" type="button">Preencher perfil do produto</button><span class="generation-status">Preço e promessas precisam de validação antes da oferta.</span></div>
+              </section>
+              <form class="panel brief-form product-form" id="product-form">
+                <div class="brief-section-title"><span class="step-number">✳</span><div><h2>Perfil da oferta</h2><p>Esses dados ficam salvos somente neste navegador.</p></div></div>
+                <div><label class="field-label" for="product-name">Nome do produto digital</label><input id="product-name" name="name" maxlength="100" placeholder="Ex.: Curso Fotografia Essencial" required></div>
+                <div><label class="field-label" for="product-description">O que é o produto?</label><textarea id="product-description" name="description" rows="3" maxlength="1200" placeholder="Descreva o conteúdo, formato e o que a pessoa recebe." required></textarea></div>
+                <div class="form-row"><div><label class="field-label" for="product-audience">Público ideal</label><input id="product-audience" name="audience" maxlength="300" placeholder="Ex.: fotógrafos iniciantes" required></div><div><label class="field-label" for="product-price">Preço (opcional)</label><input id="product-price" name="price" maxlength="80" placeholder="Ex.: R$ 197"></div></div>
+                <div><label class="field-label" for="product-benefit">Benefício principal</label><input id="product-benefit" name="benefit" maxlength="300" placeholder="Qual resultado real o produto ajuda a alcançar?" required></div>
+                <div class="form-row"><div><label class="field-label" for="product-url">Link da oferta (opcional)</label><input id="product-url" name="url" type="url" maxlength="300" placeholder="https://..."></div><div><label class="field-label" for="product-sales-platform">Plataforma de venda</label><select id="product-sales-platform" name="salesPlatform"><option value="link direto">Link direto</option><option>Kiwify</option><option>Cakto</option><option>Hotmart</option></select></div></div>
+                <div><label class="field-label" for="product-tone">Tom da marca</label><select id="product-tone" name="tone"><option>Claro e próximo</option><option>Especialista e direto</option><option>Leve e descontraído</option><option>Premium e minimalista</option></select></div>
+                <div class="generation-actions"><button class="save-transaction" type="submit">Salvar perfil do produto</button><span class="generation-status" id="product-status" role="status">A IA usará este briefing nas campanhas.</span></div>
+              </form>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="conversation assistant-view" id="assistant-view" aria-label="Chat com Cash" hidden>
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">C</span> cash<span class="brand-period">.</span></div>
+          <nav class="mobile-switcher" aria-label="Seções do Cash">
+            <button class="mobile-nav-item" type="button" data-page="dashboard">Visão</button>
+            <button class="mobile-nav-item" type="button" data-page="finance">Lucro</button>
+            <button class="mobile-nav-item" type="button" data-page="campaigns">Campanhas</button>
+            <button class="mobile-nav-item" type="button" data-page="create">Criar</button>
+            <button class="mobile-nav-item" type="button" data-page="product">Produto</button>
+            <button class="mobile-nav-item" type="button" data-page="affiliates">Afiliados</button>
+            <button class="mobile-nav-item" type="button" data-page="integrations">Conectar</button>
+            <button class="mobile-nav-item active" type="button" data-page="assistant">IA</button>
+          </nav>
+          <div class="topbar-label"><span class="live-dot" aria-hidden="true"></span> ESTRATEGISTA DE MARKETING</div>
+          <button class="icon-button" id="clear-chat" type="button" aria-label="Limpar conversa" title="Limpar conversa">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+          </button>
+        </header>
+
+        <div class="chat-scroll" id="chat-scroll">
+          <div class="chat-content">
+            <div class="welcome" id="welcome">
+              <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> IDEIAS QUE VIRAM CAMPANHAS</div>
+              <h1>Vamos fazer<br><span>seu produto crescer.</span></h1>
+              <p>Oi, eu sou o Cash. Posso ajudar com estratégia, oferta e conteúdo.</p>
+              <div class="suggestions" aria-label="Sugestões de perguntas">
+                <button class="suggestion" type="button" data-prompt="Me ajude a definir uma proposta de valor clara para meu produto digital. Faça as perguntas necessárias primeiro.">
+                  <span class="suggestion-icon mint" aria-hidden="true">↗</span>
+                  <span>Definir proposta de valor</span>
+                  <span class="suggestion-arrow" aria-hidden="true">→</span>
+                </button>
+                <button class="suggestion" type="button" data-prompt="Crie três ideias de anúncios honestos para um produto digital. Pergunte sobre público, benefício e prova antes de escrever.">
+                  <span class="suggestion-icon peach" aria-hidden="true">％</span>
+                  <span>Ideias para anúncios</span>
+                  <span class="suggestion-arrow" aria-hidden="true">→</span>
+                </button>
+                <button class="suggestion" type="button" data-prompt="Monte uma sequência de e-mails de lançamento com conteúdo útil, consentimento e opção clara de descadastro.">
+                  <span class="suggestion-icon blue" aria-hidden="true">⌁</span>
+                  <span>Planejar um lançamento</span>
+                  <span class="suggestion-arrow" aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+            <div class="messages" id="messages" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="composer-area">
+          <form class="composer" id="chat-form">
+            <label class="visually-hidden" for="message-input">Escreva sua pergunta</label>
+            <textarea id="message-input" rows="1" maxlength="4000" placeholder="Estratégia, conteúdo, posicionamento..." required></textarea>
+            <button class="send-button" id="send-button" type="submit" aria-label="Enviar mensagem" title="Enviar mensagem">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" /></svg>
+            </button>
+          </form>
+          <p class="disclaimer">Revise alegações, preços, links e condições antes de publicar qualquer campanha.</p>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="integration-dialog" id="integration-dialog" aria-labelledby="integration-dialog-title">
+      <div class="integration-dialog-content">
+        <div class="dialog-heading"><div><div class="welcome-kicker">CONFIGURAÇÃO DE CANAL</div><h2 id="integration-dialog-title">Conectar plataforma</h2></div><button class="dialog-close" id="close-integration-dialog" type="button" aria-label="Fechar">×</button></div>
+        <p class="integration-dialog-description" id="integration-dialog-description"></p>
+        <div class="integration-requirements" id="integration-requirements"></div>
+        <a class="integration-doc-link" id="integration-doc-link" href="#" target="_blank" rel="noopener noreferrer">Abrir documentação oficial <span aria-hidden="true">↗</span></a>
+        <p class="integration-notice">O status só mudará para conectado depois que OAuth ou webhook for implementado e validado no servidor.</p>
+      </div>
+    </dialog>
+
+    <dialog class="integration-dialog money-dialog" id="money-entry-dialog" aria-labelledby="money-entry-title">
+      <form class="brief-form" id="money-entry-form">
+        <div class="dialog-heading"><div><div class="welcome-kicker">CONTROLE DE RESULTADOS</div><h2 id="money-entry-title">Registrar movimentação</h2></div><button class="dialog-close" id="close-money-entry" type="button" aria-label="Fechar">×</button></div>
+        <div><label class="field-label" for="money-entry-type">Tipo</label><select id="money-entry-type" name="type"><option value="sale">Venda aprovada</option><option value="ad">Gasto com anúncios</option><option value="fee">Taxa da plataforma</option><option value="refund">Reembolso</option><option value="withdrawal">Saque já realizado</option></select></div>
+        <div class="form-row"><div><label class="field-label" for="money-entry-amount">Valor (R$)</label><input id="money-entry-amount" name="amount" type="number" min="0.01" max="100000000" step="0.01" placeholder="0,00" required></div><div><label class="field-label" for="money-entry-date">Data</label><input id="money-entry-date" name="date" type="date" required></div></div>
+        <div><label class="field-label" for="money-entry-note">Referência (opcional)</label><input id="money-entry-note" name="note" maxlength="100" placeholder="Ex.: venda do e-book"></div>
+        <div class="generation-actions"><button class="save-transaction" type="submit">Salvar registro</button><span class="generation-status">Use valores confirmados no checkout.</span></div>
+      </form>
+    </dialog>
+
+    <dialog class="integration-dialog money-dialog" id="withdrawal-dialog" aria-labelledby="withdrawal-title">
+      <div class="integration-dialog-content">
+        <div class="dialog-heading"><div><div class="welcome-kicker">SAQUE NA PLATAFORMA</div><h2 id="withdrawal-title">Solicitar saque</h2></div><button class="dialog-close" id="close-withdrawal" type="button" aria-label="Fechar">×</button></div>
+        <p class="integration-dialog-description" id="withdrawal-description">O saldo estimado pelo Cash não é o saldo oficial da plataforma. O pedido e a transferência acontecem no painel do checkout.</p>
+        <label class="field-label" for="withdrawal-platform">Onde estão suas vendas?</label>
+        <select id="withdrawal-platform" class="withdrawal-select"><option>Kiwify</option><option>Cakto</option><option>Hotmart</option></select>
+        <a class="integration-doc-link" id="withdrawal-link" href="https://kiwify.com.br/" target="_blank" rel="noopener noreferrer">Abrir painel da plataforma <span aria-hidden="true">↗</span></a>
+        <p class="integration-notice">O Cash não recebe, armazena ou transfere valores. Confirme saldo, taxas e dados bancários diretamente no checkout.</p>
+      </div>
+    </dialog>
+
+    <dialog class="integration-dialog money-dialog" id="secure-withdrawal-dialog" aria-labelledby="secure-withdrawal-title">
+      <form class="brief-form" id="secure-withdrawal-form">
+        <div class="dialog-heading"><div><div class="welcome-kicker">CONFIRMAÇÃO DE SAQUE</div><h2 id="secure-withdrawal-title">Solicitar saque</h2></div><button class="dialog-close" id="close-secure-withdrawal" type="button" aria-label="Fechar">×</button></div>
+        <p class="integration-dialog-description" id="secure-withdrawal-summary">Saldo verificado na plataforma selecionada.</p>
+        <div><label class="field-label" for="secure-withdrawal-amount">Valor do saque (R$)</label><input id="secure-withdrawal-amount" name="amount" type="number" min="0.01" max="100000000" step="0.01" required></div>
+        <label class="withdrawal-confirm-label"><input id="secure-withdrawal-confirm" type="checkbox" required><span>Confirmo que quero solicitar este saque. A plataforma pode aplicar taxas, análise e prazo de processamento.</span></label>
+        <div class="generation-actions"><button class="save-transaction" id="submit-secure-withdrawal" type="submit">Confirmar solicitação</button><span class="generation-status" id="secure-withdrawal-status" role="status">A plataforma continuará responsável pelo processamento.</span></div>
+      </form>
+    </dialog>
+
+  </body>
+</html>
