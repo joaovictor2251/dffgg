@@ -35,6 +35,30 @@ body {
 .brand, .mobile-brand { display: flex; align-items: center; gap: 9px; color: var(--ink); font-size: 23px; font-weight: 800; letter-spacing: 0; text-decoration: none; }
 .brand-mark { display: inline-grid; width: 30px; aspect-ratio: 1; place-items: center; border-radius: 9px 9px 9px 3px; background: var(--green); color: var(--green-dark); font-size: 17px; font-weight: 800; }
 .brand-period { color: #7aaa45; }
+.mascot-stage { position: fixed; z-index: 4; right: 0; bottom: 0; left: 0; height: 44px; overflow: hidden; pointer-events: none; }
+.mascot-stage[hidden] { display: none; }
+.app-mascot { position: absolute; bottom: 3px; left: 0; width: 36px; height: 40px; }
+.mascot-sprite { display: block; width: 32px; height: 38px; transform-origin: center bottom; animation: mascot-step .42s ease-in-out infinite alternate; }
+.app-mascot[data-direction="left"] .mascot-sprite { transform: scaleX(-1); }
+.app-mascot-partner .mascot-sprite { filter: hue-rotate(28deg) saturate(.88); }
+.mascot-leg { transform-box: fill-box; transform-origin: top center; }
+.mascot-leg-back { animation: mascot-leg-step .42s ease-in-out infinite alternate-reverse; }
+.app-mascot.mascot-fighting .mascot-sprite { animation: mascot-fight .12s linear infinite; }
+.app-mascot.mascot-playing .mascot-sprite { animation: mascot-play .32s ease-in-out infinite alternate; }
+.app-mascot.mascot-fighting::after, .app-mascot.mascot-playing::after { position: absolute; top: 0; left: 12px; color: #e5bf61; font-size: 15px; font-weight: 800; animation: mascot-spark .28s steps(2, end) infinite; }
+.app-mascot.mascot-fighting::after { content: "✦"; }
+.app-mascot.mascot-playing::after { content: "♪"; color: #8bd1a6; }
+.mascot-bubble { position: absolute; bottom: 38px; left: 24px; width: max-content; max-width: min(210px, calc(100vw - 54px)); padding: 8px 10px; border: 1px solid #dfe9de; border-radius: 7px 7px 7px 2px; background: #fbfff8; box-shadow: 0 5px 16px rgba(13, 30, 21, .14); color: #344b3b; font-size: 10px; font-weight: 600; line-height: 1.4; opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
+.app-mascot[data-direction="left"] .mascot-bubble { right: 24px; left: auto; border-radius: 7px 7px 2px 7px; }
+.app-mascot .mascot-bubble.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+@keyframes mascot-step { from { translate: 0 0; } to { translate: 0 -2px; } }
+@keyframes mascot-leg-step { from { rotate: -9deg; } to { rotate: 9deg; } }
+@keyframes mascot-fight { 0%, 100% { translate: -2px 0; rotate: -5deg; } 50% { translate: 2px -1px; rotate: 5deg; } }
+@keyframes mascot-play { from { translate: 0 0; rotate: -8deg; } to { translate: 0 -5px; rotate: 8deg; } }
+@keyframes mascot-spark { from { scale: .7; opacity: .4; rotate: -12deg; } to { scale: 1.15; opacity: 1; rotate: 12deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .mascot-stage { display: none !important; }
+}
 .new-chat { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; margin-top: 37px; border: 0; border-radius: 5px; background: var(--green-dark); color: white; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .18s ease, transform .18s ease; }
 .new-chat:hover { background: #27563a; transform: translateY(-1px); }
 .new-chat span { font-size: 19px; font-weight: 400; }
@@ -126,8 +150,9 @@ h1 span { color: #77877a; font-weight: 400; }
 .add-transaction:hover { transform: translateY(-1px); background: #27563a; }
 .add-transaction span { font-size: 17px; font-weight: 400; }
 .dashboard-scroll { flex: 1; overflow: auto; }
-.dashboard-content { width: min(1050px, 100%); margin: 0 auto; padding: 32px 38px 44px; }
+.dashboard-content { width: min(1050px, 100%); margin: 0 auto; padding: 32px 38px 94px; }
 .dashboard-heading { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 23px; }
+.dashboard-heading-actions { display: flex; align-items: center; gap: 8px; }
 .dashboard-heading h1 { margin: 13px 0 4px; font-size: 34px; font-weight: 700; }
 .heading-period { color: #80ae52; }
 .month-label { margin: 0; color: var(--muted); font-size: 12px; text-transform: capitalize; }
@@ -231,7 +256,7 @@ h1 span { color: #77877a; font-weight: 400; }
   .suggestion { min-height: 52px; }
   .composer-area { padding: 10px 15px 13px; }
   .disclaimer { font-size: 8px; }
-  .dashboard-content { padding: 25px 16px 32px; }
+  .dashboard-content { padding: 25px 16px 94px; }
   .dashboard-heading { align-items: center; margin-bottom: 17px; }
   .dashboard-heading h1 { margin-top: 11px; font-size: 28px; }
   .dashboard-heading .welcome-kicker { font-size: 8px; }
@@ -303,8 +328,12 @@ body {
 .metric-value { color: #e5f1ee; }
 .metric-product { font-size: clamp(14px, 1.8vw, 21px); }
 .metric-foot { color: #829696; }
-.finance-summary, .finance-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.finance-summary { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.finance-metrics { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .finance-summary .metric-card:first-child { border-color: #24534a; background: linear-gradient(120deg, #14332f, #122322); }
+.loss-card { border-color: #563a3c; background: linear-gradient(120deg, #302022, #251b1e); }
+.loss-card .metric-label, .loss-card .metric-value { color: #e4a39a; }
+.loss-card .metric-foot { color: #b28a86; }
 .finance-metrics .metric-value { font-size: clamp(16px, 2vw, 23px); }
 .finance-formula { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; padding: 14px; border: 1px solid #293b3f; border-radius: 4px; background: #10191d; color: #a4b5b3; font-size: 10px; line-height: 1.7; }
 .formula-mark { color: #91e8c1; font: 16px 'DM Mono', monospace; }
@@ -510,16 +539,16 @@ body {
   .app-shell { background: #0b1216; }
   .conversation { background: #0d161a; }
   .topbar { gap: 7px; padding: 0 10px; }
-  .mobile-brand { font-size: 17px; }
+  .mobile-brand { font-size: 15px; white-space: nowrap; }
   .mobile-brand .brand-mark { width: 23px; }
-  .mobile-switcher { max-width: calc(100vw - 120px); overflow-x: auto; scrollbar-width: none; }
+  .mobile-switcher { max-width: calc(100vw - 210px); overflow-x: auto; scrollbar-width: none; }
   .mobile-switcher::-webkit-scrollbar { display: none; }
   .mobile-nav-item { min-height: 28px; padding: 0 7px; color: #94a9a8; font-size: 8px; white-space: nowrap; }
   .mobile-nav-item.active { background: #1a3933; color: #a5f5d2; box-shadow: none; }
   .dashboard-view .topbar-label { display: none; }
   .dashboard-view > .topbar > .mobile-brand { display: flex; }
   .dashboard-view .add-transaction:not(.mobile-add) { display: none; }
-  .dashboard-content { padding: 25px 15px 34px; }
+  .dashboard-content { padding: 25px 15px 94px; }
   .dashboard-heading h1 { max-width: 290px; font-size: 26px; line-height: 1.2; }
   .metric-card { border-color: #26383c; background: #111c20; }
   .balance-card { background: #14332f; }

@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
+const localAi = require('./local-ai');
 
 function loadEnvironmentFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -31,6 +32,9 @@ const databasePath = process.env.CASH_DATABASE_PATH || path.join(__dirname, 'dat
 fs.mkdirSync(path.dirname(databasePath), { recursive: true, mode: 0o700 });
 const accountDatabase = new DatabaseSync(databasePath);
 accountDatabase.exec('CREATE TABLE IF NOT EXISTS owner_accounts (id INTEGER PRIMARY KEY CHECK (id = 1), email TEXT NOT NULL UNIQUE, password_salt TEXT NOT NULL, password_hash TEXT NOT NULL, created_at TEXT NOT NULL)');
+accountDatabase.exec("CREATE TABLE IF NOT EXISTS app_accounts (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, password_salt TEXT NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK (role IN ('owner', 'member')), created_at TEXT NOT NULL)");
+accountDatabase.exec(`INSERT OR IGNORE INTO app_accounts (id, email, password_salt, password_hash, role, created_at)
+  SELECT id, email, password_salt, password_hash, 'owner', created_at FROM owner_accounts WHERE id = 1`);
 try {
   fs.chmodSync(databasePath, 0o600);
 } catch {
@@ -43,6 +47,7 @@ const contentTypes = {
 const financeSessions = new Map();
 const providerTokens = new Map();
 const failedLoginAttempts = new Map();
+const accountRegistrationAttempts = new Map();
 const financeSessionCookie = 'cash_finance_session';
 const financeSessionLifetime = 12 * 60 * 60 * 1000;
 
@@ -144,25 +149,37 @@ function financeSessionId(request) {
 }
 
 function hasFinanceSession(request) {
+  const session = getAccountSession(request);
+  return session?.role === 'owner';
+}
+
+function getAccountSession(request) {
   const sessionId = financeSessionId(request);
   const session = sessionId && financeSessions.get(sessionId);
-  if (!session) return false;
+  if (!session) return null;
   if (session.expiresAt < Date.now()) {
     financeSessions.delete(sessionId);
-    return false;
+    return null;
   }
-  return true;
+  return session;
+}
+
+function hasAppSession(request) {
+  return Boolean(getAccountSession(request));
 }
 
 function ownerAccountExists() {
-  return Boolean(accountDatabase.prepare('SELECT 1 AS found FROM owner_accounts WHERE id = 1').get());
+  return Boolean(accountDatabase.prepare("SELECT 1 AS found FROM app_accounts WHERE role = 'owner' LIMIT 1").get());
 }
 
-function createAccountSession(request, response) {
-  const user = accountDatabase.prepare('SELECT id FROM owner_accounts WHERE id = 1').get();
-  if (!user) throw new Error('Conta proprietária não encontrada.');
+function createAccountSession(request, response, account) {
   const sessionId = crypto.randomBytes(32).toString('hex');
-  financeSessions.set(sessionId, { userId: user.id, expiresAt: Date.now() + financeSessionLifetime });
+  financeSessions.set(sessionId, {
+    userId: account.id,
+    email: account.email,
+    role: account.role,
+    expiresAt: Date.now() + financeSessionLifetime,
+  });
   const secure = request.socket.encrypted || request.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
   response.setHeader('set-cookie', `${financeSessionCookie}=${sessionId}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${financeSessionLifetime / 1000}${secure}`);
 }
@@ -181,6 +198,19 @@ function isLoginRateLimited(request) {
   }
   attempts.push(now);
   failedLoginAttempts.set(key, attempts);
+  return false;
+}
+
+function isRegistrationRateLimited(request) {
+  const key = request.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const attempts = (accountRegistrationAttempts.get(key) || []).filter((timestamp) => now - timestamp < 15 * 60 * 1000);
+  if (attempts.length >= 5) {
+    accountRegistrationAttempts.set(key, attempts);
+    return true;
+  }
+  attempts.push(now);
+  accountRegistrationAttempts.set(key, attempts);
   return false;
 }
 
@@ -204,8 +234,21 @@ function financeProviders() {
 }
 
 function requireFinanceSession(request, response) {
-  if (!hasFinanceSession(request)) {
-    sendJson(response, 401, { error: 'Faça login no Cash novamente.' });
+  const session = getAccountSession(request);
+  if (!session) {
+    sendJson(response, 401, { error: 'Faça login no Dinvaro IA novamente.' });
+    return false;
+  }
+  if (session.role !== 'owner') {
+    sendJson(response, 403, { error: 'A área financeira está disponível somente para a conta proprietária.' });
+    return false;
+  }
+  return true;
+}
+
+function requireAppSession(request, response) {
+  if (!hasAppSession(request)) {
+    sendJson(response, 401, { error: 'Faça login no Dinvaro IA novamente.' });
     return false;
   }
   return true;
@@ -286,9 +329,11 @@ async function handleFinanceSession(request, response) {
   }
 
   if (request.method === 'GET') {
+    const session = getAccountSession(request);
     sendJson(response, 200, {
-      authenticated: hasFinanceSession(request),
+      authenticated: Boolean(session),
       configured: ownerAccountExists(),
+      account: session ? { id: session.userId, email: session.email, role: session.role } : null,
     });
     return;
   }
@@ -298,10 +343,6 @@ async function handleFinanceSession(request, response) {
     return;
   }
 
-  if (!ownerAccountExists()) {
-    sendJson(response, 409, { error: 'Crie a conta proprietária antes de entrar.' });
-    return;
-  }
   if (isLoginRateLimited(request)) {
     sendJson(response, 429, { error: 'Muitas tentativas de acesso. Aguarde 15 minutos e tente novamente.' });
     return;
@@ -311,17 +352,17 @@ async function handleFinanceSession(request, response) {
     const body = await readJson(request);
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
     const password = typeof body.password === 'string' ? body.password : '';
-    const account = accountDatabase.prepare('SELECT id, password_salt, password_hash FROM owner_accounts WHERE email = ?').get(email);
+    const account = accountDatabase.prepare('SELECT id, email, password_salt, password_hash, role FROM app_accounts WHERE email = ?').get(email);
     const passwordHash = account && password ? hashPassword(password, account.password_salt) : '';
     if (!account || !safeSecretEqual(passwordHash, account.password_hash)) {
       sendJson(response, 401, { error: 'E-mail ou senha incorretos.' });
       return;
     }
-    createAccountSession(request, response);
+    createAccountSession(request, response, account);
     response.writeHead(200, {
       'content-type': 'application/json; charset=utf-8',
     });
-    response.end(JSON.stringify({ email: account.email, providers: financeProviders() }));
+    response.end(JSON.stringify({ id: account.id, email: account.email, role: account.role }));
   } catch {
     sendJson(response, 400, { error: 'Não foi possível validar o acesso.' });
   }
@@ -336,11 +377,10 @@ async function handleAccountRegistration(request, response) {
     sendJson(response, 405, { error: 'Método não permitido.' });
     return;
   }
-  if (ownerAccountExists()) {
-    sendJson(response, 409, { error: 'A conta proprietária já existe. Use o login.' });
+  if (isRegistrationRateLimited(request)) {
+    sendJson(response, 429, { error: 'Muitas tentativas de cadastro. Aguarde 15 minutos e tente novamente.' });
     return;
   }
-
   let transactionOpen = false;
   try {
     const body = await readJson(request);
@@ -351,8 +391,8 @@ async function handleAccountRegistration(request, response) {
       sendJson(response, 400, { error: 'Informe um endereço de e-mail válido.' });
       return;
     }
-    if (password.length < 12 || password.length > 128) {
-      sendJson(response, 400, { error: 'Use uma senha com pelo menos 12 caracteres.' });
+    if (password.length < 6 || password.length > 128) {
+      sendJson(response, 400, { error: 'Use uma senha com pelo menos 6 caracteres.' });
       return;
     }
     if (password !== passwordConfirm) {
@@ -362,22 +402,18 @@ async function handleAccountRegistration(request, response) {
 
     accountDatabase.exec('BEGIN IMMEDIATE');
     transactionOpen = true;
-    if (ownerAccountExists()) {
-      accountDatabase.exec('ROLLBACK');
-      transactionOpen = false;
-      sendJson(response, 409, { error: 'A conta proprietária já existe. Use o login.' });
-      return;
-    }
     const salt = crypto.randomBytes(16).toString('hex');
     const passwordHash = hashPassword(password, salt);
-    accountDatabase.prepare('INSERT INTO owner_accounts (id, email, password_salt, password_hash, created_at) VALUES (1, ?, ?, ?, ?)')
-      .run(email, salt, passwordHash, new Date().toISOString());
+    const role = ownerAccountExists() ? 'member' : 'owner';
+    const result = accountDatabase.prepare('INSERT INTO app_accounts (email, password_salt, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?)')
+      .run(email, salt, passwordHash, role, new Date().toISOString());
     accountDatabase.exec('COMMIT');
     transactionOpen = false;
 
-    createAccountSession(request, response);
+    const account = { id: Number(result.lastInsertRowid), email, role };
+    createAccountSession(request, response, account);
     response.writeHead(201, { 'content-type': 'application/json; charset=utf-8' });
-    response.end(JSON.stringify({ email }));
+    response.end(JSON.stringify(account));
   } catch (error) {
     if (transactionOpen) accountDatabase.exec('ROLLBACK');
     if (String(error.message).includes('UNIQUE constraint failed')) {
@@ -498,7 +534,7 @@ async function handleChat(request, response) {
         messages: [
           {
             role: 'system',
-            content: 'Você é Cash, uma estrategista de marketing para produtos digitais, em português do Brasil. Ajude com posicionamento, ofertas e conteúdo claro e útil. Nunca invente características do produto, depoimentos, resultados, garantias, descontos ou escassez. Prefira alegações verificáveis, respeite consentimento e descadastro em e-mails e não afirme que publicou ou vendeu algo. Quando faltarem informações, pergunte.',
+            content: 'Você é Dinvaro IA, uma estrategista de marketing para produtos digitais, em português do Brasil. Ajude com posicionamento, ofertas e conteúdo claro e útil. Nunca invente características do produto, depoimentos, resultados, garantias, descontos ou escassez. Prefira alegações verificáveis, respeite consentimento e descadastro em e-mails e não afirme que publicou ou vendeu algo. Quando faltarem informações, pergunte.',
           },
           ...messages,
         ],
@@ -569,7 +605,7 @@ async function handleGenerate(request, response) {
         messages: [
           {
             role: 'system',
-            content: 'Você é Cash, uma estrategista sênior de marketing para produtos digitais no Brasil. Crie materiais práticos em português brasileiro, estruturados com títulos e prontos para revisão humana. Use apenas fatos informados. Nunca invente depoimentos, números, garantias, credenciais, descontos ou urgência. Se o briefing não sustentar uma alegação, omita-a. Respeite as regras do canal; para e-mails, inclua assunto, conteúdo útil e orientação de descadastro para uma lista com consentimento. Não publique, envie mensagens ou alegue resultados: entregue apenas um rascunho.',
+            content: 'Você é Dinvaro IA, uma estrategista sênior de marketing para produtos digitais no Brasil. Crie materiais práticos em português brasileiro, estruturados com títulos e prontos para revisão humana. Use apenas fatos informados. Nunca invente depoimentos, números, garantias, credenciais, descontos ou urgência. Se o briefing não sustentar uma alegação, omita-a. Respeite as regras do canal; para e-mails, inclua assunto, conteúdo útil e orientação de descadastro para uma lista com consentimento. Não publique, envie mensagens ou alegue resultados: entregue apenas um rascunho.',
           },
           {
             role: 'user',
@@ -879,36 +915,127 @@ async function handleAffiliatePromotion(request, response) {
   }
 }
 
+function badRequest(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
+}
+
+async function handleLocalAiRequest(request, response, createResult) {
+  try {
+    const body = await readJson(request);
+    sendJson(response, 200, createResult(body));
+  } catch (error) {
+    sendJson(response, error.statusCode || 500, { error: error.statusCode ? error.message : 'Não foi possível processar a solicitação.' });
+  }
+}
+
+function handleLocalChat(request, response) {
+  return handleLocalAiRequest(request, response, (body) => {
+    const messages = Array.isArray(body.messages)
+      ? body.messages.filter((message) => ['user', 'assistant'].includes(message.role) && typeof message.content === 'string').slice(-12)
+      : [];
+    if (!messages.length || messages[messages.length - 1].role !== 'user') throw badRequest('Envie uma mensagem para começar.');
+    const product = body.product && typeof body.product === 'object' ? body.product : {};
+    return { answer: localAi.makeChatAnswer(messages, product) };
+  });
+}
+
+function handleLocalCampaign(request, response) {
+  return handleLocalAiRequest(request, response, (body) => {
+    const product = body.product && typeof body.product === 'object' ? body.product : {};
+    const campaign = body.campaign && typeof body.campaign === 'object' ? body.campaign : {};
+    if (['name', 'description', 'audience', 'benefit'].some((field) => typeof product[field] !== 'string' || !product[field].trim())) {
+      throw badRequest('Preencha nome, descrição, público e benefício do produto.');
+    }
+    if (typeof campaign.name !== 'string' || !campaign.name.trim()) throw badRequest('Dê um nome para esta campanha.');
+    return { content: localAi.makeCampaign(product, campaign) };
+  });
+}
+
+function handleLocalProduct(request, response) {
+  return handleLocalAiRequest(request, response, (body) => {
+    const idea = typeof body.idea === 'string' ? body.idea.trim().slice(0, 700) : '';
+    const audience = typeof body.audience === 'string' ? body.audience.trim().slice(0, 250) : '';
+    if (idea.length < 12) throw badRequest('Descreva a ideia com um pouco mais de detalhe.');
+    try {
+      return { product: localAi.makeProduct({ idea, audience, format: body.format }) };
+    } catch (error) {
+      throw badRequest(error.message);
+    }
+  });
+}
+
+function handleLocalAffiliateSuggestions(request, response) {
+  return handleLocalAiRequest(request, response, (body) => {
+    const niche = typeof body.niche === 'string' ? body.niche.trim().slice(0, 300) : '';
+    if (niche.length < 3) throw badRequest('Informe um nicho ou tema com pelo menos 3 caracteres.');
+    return localAi.makeAffiliateSuggestions({
+      niche,
+      audience: body.audience,
+      platform: body.platform,
+      context: body.context,
+    });
+  });
+}
+
+function handleLocalAffiliatePromotion(request, response) {
+  return handleLocalAiRequest(request, response, (body) => {
+    const product = body.product && typeof body.product === 'object' ? body.product : {};
+    const durationDays = Number.parseInt(String(body.duration || '').match(/\d+/)?.[0] || '', 10);
+    const channelOptions = new Set(['Instagram e TikTok', 'Instagram e Facebook', 'TikTok e YouTube Shorts', 'Instagram, TikTok e e-mail']);
+    const frequencyOptions = new Set(['3 publicações por semana', '5 publicações por semana', '1 publicação por dia']);
+    const name = typeof product.name === 'string' ? product.name.trim().slice(0, 120) : '';
+    const platform = typeof product.platform === 'string' ? product.platform.trim().slice(0, 80) : '';
+    const link = typeof product.link === 'string' ? product.link.trim().slice(0, 1_000) : '';
+    if (!name || !platform || !link || ![7, 14, 30].includes(durationDays) || !channelOptions.has(body.channels) || !frequencyOptions.has(body.frequency)) {
+      throw badRequest('Produto, link, duração, canais ou frequência inválidos.');
+    }
+    let parsedLink;
+    try {
+      parsedLink = new URL(link);
+    } catch {
+      throw badRequest('O link de afiliado não é válido.');
+    }
+    if (parsedLink.protocol !== 'https:') throw badRequest('O link de afiliado precisa usar HTTPS.');
+    const safeProduct = {
+      ...product,
+      commission: Number.isFinite(product.commission) ? Math.min(100, Math.max(0, product.commission)) : null,
+    };
+    return localAi.makeAffiliatePromotion({ ...body, product: safeProduct, duration: `${durationDays} dias` });
+  });
+}
+
 const server = http.createServer((request, response) => {
   const requestUrl = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
 
   if (requestUrl.pathname === '/api/chat' && request.method === 'POST') {
-    if (!requireFinanceSession(request, response)) return;
-    handleChat(request, response);
+    if (!requireAppSession(request, response)) return;
+    handleLocalChat(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/generate' && request.method === 'POST') {
-    if (!requireFinanceSession(request, response)) return;
-    handleGenerate(request, response);
+    if (!requireAppSession(request, response)) return;
+    handleLocalCampaign(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/product/generate' && request.method === 'POST') {
-    if (!requireFinanceSession(request, response)) return;
-    handleProductGeneration(request, response);
+    if (!requireAppSession(request, response)) return;
+    handleLocalProduct(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/affiliates/suggest' && request.method === 'POST') {
-    if (!requireFinanceSession(request, response)) return;
-    handleAffiliateSuggestions(request, response);
+    if (!requireAppSession(request, response)) return;
+    handleLocalAffiliateSuggestions(request, response);
     return;
   }
 
   if (requestUrl.pathname === '/api/affiliates/promotion' && request.method === 'POST') {
-    if (!requireFinanceSession(request, response)) return;
-    handleAffiliatePromotion(request, response);
+    if (!requireAppSession(request, response)) return;
+    handleLocalAffiliatePromotion(request, response);
     return;
   }
 
@@ -939,8 +1066,7 @@ const server = http.createServer((request, response) => {
   }
 
   if (requestUrl.pathname === '/api/health' && request.method === 'GET') {
-    const ai = getAiConfig();
-    sendJson(response, 200, { ready: Boolean(ai.key), provider: ai.name });
+    sendJson(response, 200, { ready: true, provider: 'Dinvaro IA local' });
     return;
   }
 
@@ -958,16 +1084,15 @@ const server = http.createServer((request, response) => {
       response.end('Não encontrado');
       return;
     }
-    response.writeHead(200, { 'content-type': contentTypes[path.extname(filePath)] });
+    response.writeHead(200, {
+      'content-type': contentTypes[path.extname(filePath)],
+      'cache-control': 'no-store',
+    });
     response.end(contents);
   });
 });
 
 server.listen(port, () => {
-  console.log(`Cash disponível em http://localhost:${port}`);
-  const ai = getAiConfig();
-  if (!ai.key) {
-    const keyName = ai.name === 'Gemini' ? 'GEMINI_API_KEY' : 'OPENAI_API_KEY';
-    console.warn(`IA desativada. Preencha ${keyName} no arquivo .env e reinicie o servidor.`);
-  }
+  console.log(`Dinvaro IA disponível em http://localhost:${port}`);
+  console.log('Motor de marketing local ativo; nenhuma API de IA externa é usada.');
 });

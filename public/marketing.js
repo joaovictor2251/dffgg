@@ -78,35 +78,112 @@ const integrations = [
 
 function readLocal(key, fallback) {
   try {
-    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+    return JSON.parse(localStorage.getItem(scopedStorageKey(key)) || JSON.stringify(fallback));
   } catch {
     return fallback;
   }
 }
 
-let profile = readLocal(productKey, {});
-let campaigns = readLocal(campaignsKey, []);
-let affiliateBatches = readLocal(affiliateIdeasKey, []);
-let affiliateProducts = readLocal(affiliateProductsKey, []);
-let promotionPlans = readLocal(promotionPlansKey, []);
-let adBudgets = readLocal(adBudgetsKey, []);
-let moneyEntries = readLocal(moneyEntriesKey, []);
+const accountDataKeys = [campaignsKey, productKey, generatedProductKey, affiliateIdeasKey, affiliateProductsKey, promotionPlansKey, adBudgetsKey, moneyEntriesKey];
+let activeAccount = null;
+let activeAccountId = null;
+let profile = {};
+let campaigns = [];
+let affiliateBatches = [];
+let affiliateProducts = [];
+let promotionPlans = [];
+let adBudgets = [];
+let moneyEntries = [];
+let generatedProduct = null;
 let liveBalance = null;
 let financeAuthenticated = false;
 let appAuthenticated = false;
 let accountConfigured = false;
 let accountCreationMode = false;
-if (!profile || typeof profile !== 'object' || Array.isArray(profile)) profile = {};
-if (!Array.isArray(campaigns)) campaigns = [];
-if (!Array.isArray(affiliateBatches)) affiliateBatches = [];
-if (!Array.isArray(affiliateProducts)) affiliateProducts = [];
-if (!Array.isArray(promotionPlans)) promotionPlans = [];
-if (!Array.isArray(adBudgets)) adBudgets = [];
-if (!Array.isArray(moneyEntries)) moneyEntries = [];
-moneyEntries = moneyEntries.filter((entry) => entry
-  && ['sale', 'ad', 'fee', 'refund', 'withdrawal'].includes(entry.type)
-  && Number.isFinite(entry.amount)
-  && typeof entry.date === 'string');
+
+function scopedStorageKey(key) {
+  return activeAccountId ? `${key}:account:${activeAccountId}` : key;
+}
+
+function writeLocal(key, value) {
+  if (!activeAccountId) return;
+  localStorage.setItem(scopedStorageKey(key), JSON.stringify(value));
+}
+
+function loadAccountData(account) {
+  activeAccount = account;
+  activeAccountId = String(account.id);
+  if (account.role === 'owner') {
+    accountDataKeys.forEach((key) => {
+      const scopedKey = scopedStorageKey(key);
+      const legacyValue = localStorage.getItem(key);
+      if (localStorage.getItem(scopedKey) === null && legacyValue !== null) {
+        localStorage.setItem(scopedKey, legacyValue);
+      }
+    });
+  }
+  profile = readLocal(productKey, {});
+  campaigns = readLocal(campaignsKey, []);
+  affiliateBatches = readLocal(affiliateIdeasKey, []);
+  affiliateProducts = readLocal(affiliateProductsKey, []);
+  promotionPlans = readLocal(promotionPlansKey, []);
+  adBudgets = readLocal(adBudgetsKey, []);
+  moneyEntries = readLocal(moneyEntriesKey, []);
+  generatedProduct = readLocal(generatedProductKey, null);
+  if (!profile || typeof profile !== 'object' || Array.isArray(profile)) profile = {};
+  if (!Array.isArray(campaigns)) campaigns = [];
+  if (!Array.isArray(affiliateBatches)) affiliateBatches = [];
+  if (!Array.isArray(affiliateProducts)) affiliateProducts = [];
+  if (!Array.isArray(promotionPlans)) promotionPlans = [];
+  if (!Array.isArray(adBudgets)) adBudgets = [];
+  if (!Array.isArray(moneyEntries)) moneyEntries = [];
+  moneyEntries = moneyEntries.filter((entry) => entry
+    && ['sale', 'deposit', 'ad', 'fee', 'refund', 'withdrawal'].includes(entry.type)
+    && Number.isFinite(entry.amount)
+    && typeof entry.date === 'string');
+  document.querySelectorAll('form').forEach((form) => form.reset());
+  Object.entries(profile).forEach(([name, value]) => {
+    const field = productForm.elements.namedItem(name);
+    if (field && typeof value === 'string') field.value = value;
+  });
+  document.querySelectorAll('[data-owner-only]').forEach((element) => {
+    element.hidden = account.role !== 'owner';
+  });
+  financeAuthenticated = false;
+  history.length = 0;
+  messagesElement.replaceChildren();
+  welcome.hidden = false;
+  document.querySelector('#generation-output').hidden = true;
+  renderAffiliateProducts();
+  renderAffiliateIdeas();
+  renderPromotionProducts();
+  renderPromotionPlans();
+  renderAdBudgets();
+  renderGeneratedProduct(generatedProduct);
+  renderCampaigns();
+  renderOverview();
+  renderFinance();
+  switchPage('dashboard');
+}
+
+function clearAccountData() {
+  activeAccount = null;
+  activeAccountId = null;
+  profile = {};
+  campaigns = [];
+  affiliateBatches = [];
+  affiliateProducts = [];
+  promotionPlans = [];
+  adBudgets = [];
+  moneyEntries = [];
+  generatedProduct = null;
+  history.length = 0;
+  messagesElement.replaceChildren();
+  welcome.hidden = false;
+  document.querySelector('#generation-output').hidden = true;
+  document.querySelectorAll('form').forEach((form) => form.reset());
+  document.querySelectorAll('[data-owner-only]').forEach((element) => { element.hidden = true; });
+}
 
 function setAppAuthentication(authenticated) {
   appAuthenticated = authenticated;
@@ -119,21 +196,21 @@ function setAppAuthentication(authenticated) {
 }
 
 function setAccountCreationMode(enabled) {
-  accountCreationMode = enabled && !accountConfigured;
+  accountCreationMode = enabled;
   document.querySelector('#login-title').innerHTML = accountCreationMode
-    ? 'Crie sua<br><span>conta proprietária.</span>'
+    ? 'Crie sua<br><span>conta no Dinvaro IA.</span>'
     : 'Entre no<br><span>seu espaço.</span>';
   document.querySelector('#login-description').textContent = accountCreationMode
-    ? 'Cadastre o e-mail e uma senha forte para proteger esta instalação do Cash.'
-    : 'Use seu e-mail e senha para acessar o Cash.';
+    ? 'Crie sua conta para acessar seu espaço privado no Dinvaro IA.'
+    : 'Use seu e-mail e senha para acessar o Dinvaro IA.';
   document.querySelector('#signup-confirmation').hidden = !accountCreationMode;
   appLoginPasswordConfirm.required = accountCreationMode;
   appLoginPassword.autocomplete = accountCreationMode ? 'new-password' : 'current-password';
   document.querySelector('#app-login-submit').innerHTML = accountCreationMode
     ? 'Criar conta e entrar <span aria-hidden="true">→</span>'
-    : 'Entrar no Cash <span aria-hidden="true">→</span>';
-  loginModeToggle.hidden = accountConfigured;
-  loginModeToggle.textContent = accountCreationMode ? 'Já tenho uma conta' : 'Criar conta proprietária';
+    : 'Entrar no Dinvaro IA <span aria-hidden="true">→</span>';
+  loginModeToggle.hidden = false;
+  loginModeToggle.textContent = accountCreationMode ? 'Já tenho uma conta' : 'Criar conta';
 }
 
 loginModeToggle.addEventListener('click', () => setAccountCreationMode(!accountCreationMode));
@@ -143,14 +220,16 @@ async function checkAppSession() {
     const response = await fetch('/api/finance/session');
     const result = await response.json();
     accountConfigured = result.configured === true;
+    if (result.authenticated && result.account) loadAccountData(result.account);
+    else clearAccountData();
     setAccountCreationMode(!accountConfigured);
     setAppAuthentication(response.ok && result.authenticated === true);
     if (!result.authenticated && result.configured === false) {
-      document.querySelector('#app-login-status').textContent = 'Esta instalação ainda não tem conta. Crie a conta proprietária para começar.';
+      document.querySelector('#app-login-status').textContent = 'Esta instalação ainda não tem conta. Crie a primeira conta para começar.';
     }
   } catch {
     setAppAuthentication(false);
-    document.querySelector('#app-login-status').textContent = 'Servidor indisponível. Recarregue o Cash para tentar novamente.';
+    document.querySelector('#app-login-status').textContent = 'Servidor indisponível. Recarregue o Dinvaro IA para tentar novamente.';
   }
 }
 
@@ -160,8 +239,9 @@ async function logoutCash() {
   } finally {
     financeAuthenticated = false;
     liveBalance = null;
+    clearAccountData();
     setAppAuthentication(false);
-    document.querySelector('#app-login-status').textContent = 'Você saiu do Cash.';
+    document.querySelector('#app-login-status').textContent = 'Você saiu do Dinvaro IA.';
   }
 }
 
@@ -183,12 +263,13 @@ appLoginForm.addEventListener('submit', async (event) => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Não foi possível entrar.');
     accountConfigured = true;
+    loadAccountData(result);
     setAccountCreationMode(false);
     appLoginEmail.value = result.email || appLoginEmail.value;
     appLoginPassword.value = '';
     appLoginPasswordConfirm.value = '';
     setAppAuthentication(true);
-    status.textContent = 'Acesso autorizado.';
+    status.textContent = result.role === 'owner' ? 'Acesso de proprietária autorizado.' : 'Acesso autorizado.';
   } catch (error) {
     status.textContent = error.message || 'Falha ao validar acesso.';
   } finally {
@@ -200,11 +281,6 @@ appLoginForm.addEventListener('submit', async (event) => {
 document.querySelectorAll('[data-app-logout]').forEach((button) => {
   button.addEventListener('click', logoutCash);
 });
-
-for (const [name, value] of Object.entries(profile)) {
-  const field = productForm.elements.namedItem(name);
-  if (field && typeof value === 'string') field.value = value;
-}
 
 function switchPage(page) {
   const isAssistant = page === 'assistant';
@@ -262,7 +338,7 @@ function renderAffiliateIdeas() {
     removeBatch.textContent = 'Excluir lista';
     removeBatch.addEventListener('click', () => {
       affiliateBatches = affiliateBatches.filter((item) => item.id !== batch.id);
-      localStorage.setItem(affiliateIdeasKey, JSON.stringify(affiliateBatches));
+      writeLocal(affiliateIdeasKey, affiliateBatches);
       renderAffiliateIdeas();
     });
     heading.append(titleGroup, removeBatch);
@@ -376,7 +452,7 @@ function renderAffiliateProducts() {
     remove.textContent = 'Remover';
     remove.addEventListener('click', () => {
       affiliateProducts = affiliateProducts.filter((item) => item.id !== product.id);
-      localStorage.setItem(affiliateProductsKey, JSON.stringify(affiliateProducts));
+      writeLocal(affiliateProductsKey, affiliateProducts);
       renderAffiliateProducts();
       renderPromotionProducts();
     });
@@ -391,7 +467,7 @@ function updateAffiliateSales(productId, delta) {
   affiliateProducts = affiliateProducts.map((product) => product.id === productId
     ? { ...product, sales: Math.max(0, (Number.isSafeInteger(product.sales) ? product.sales : 0) + delta) }
     : product);
-  localStorage.setItem(affiliateProductsKey, JSON.stringify(affiliateProducts));
+  writeLocal(affiliateProductsKey, affiliateProducts);
   renderAffiliateProducts();
 }
 
@@ -425,7 +501,7 @@ document.querySelector('#affiliate-product-form').addEventListener('submit', (ev
     sales: 0,
     createdAt: new Date().toISOString(),
   });
-  localStorage.setItem(affiliateProductsKey, JSON.stringify(affiliateProducts));
+  writeLocal(affiliateProductsKey, affiliateProducts);
   event.currentTarget.reset();
   document.querySelector('#affiliate-product-status').textContent = 'Oferta salva. Registre apenas vendas confirmadas na plataforma.';
   renderAffiliateProducts();
@@ -510,7 +586,7 @@ function renderPromotionPlans() {
     remove.textContent = 'Excluir plano';
     remove.addEventListener('click', () => {
       promotionPlans = promotionPlans.filter((item) => item.id !== plan.id);
-      localStorage.setItem(promotionPlansKey, JSON.stringify(promotionPlans));
+      writeLocal(promotionPlansKey, promotionPlans);
       renderPromotionPlans();
     });
     section.append(heading, strategy, schedule, remove);
@@ -557,7 +633,7 @@ function renderAdBudgets() {
     remove.setAttribute('aria-label', `Remover orçamento de ${budget.campaign || budget.platform}`);
     remove.addEventListener('click', () => {
       adBudgets = adBudgets.filter((item) => item.id !== budget.id);
-      localStorage.setItem(adBudgetsKey, JSON.stringify(adBudgets));
+      writeLocal(adBudgetsKey, adBudgets);
       renderAdBudgets();
     });
     row.append(details, amount, billing, remove);
@@ -577,7 +653,7 @@ document.querySelector('#ad-budget-form').addEventListener('submit', (event) => 
     campaign: String(data.get('campaign')).trim(),
     createdAt: new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(new Date()),
   });
-  localStorage.setItem(adBudgetsKey, JSON.stringify(adBudgets));
+  writeLocal(adBudgetsKey, adBudgets);
   event.currentTarget.reset();
   renderAdBudgets();
 });
@@ -611,7 +687,7 @@ document.querySelector('#promotion-form').addEventListener('submit', async (even
       strategy: result.strategy,
       schedule: result.schedule,
     });
-    localStorage.setItem(promotionPlansKey, JSON.stringify(promotionPlans));
+    writeLocal(promotionPlansKey, promotionPlans);
     renderPromotionPlans();
     status.textContent = 'Plano salvo. Revise e publique manualmente nos canais conectados.';
   } catch (error) {
@@ -627,7 +703,7 @@ affiliateSuggestionForm.addEventListener('submit', async (event) => {
   const status = document.querySelector('#affiliate-status');
   const submitButton = document.querySelector('#suggest-affiliate-products');
   submitButton.disabled = true;
-  status.textContent = 'Cash está analisando o nicho...';
+  status.textContent = 'Dinvaro IA está analisando o nicho...';
   try {
     const response = await fetch('/api/affiliates/suggest', {
       method: 'POST',
@@ -643,7 +719,7 @@ affiliateSuggestionForm.addEventListener('submit', async (event) => {
       createdAt: new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()),
       suggestions: result.suggestions,
     });
-    localStorage.setItem(affiliateIdeasKey, JSON.stringify(affiliateBatches));
+    writeLocal(affiliateIdeasKey, affiliateBatches);
     renderAffiliateIdeas();
     status.textContent = 'Ideias salvas. Confirme a existência e as condições da oferta na plataforma.';
   } catch (error) {
@@ -721,15 +797,13 @@ integrationDialog.addEventListener('click', (event) => {
 function saveProfile(event) {
   if (event) event.preventDefault();
   profile = Object.fromEntries(new FormData(productForm).entries());
-  localStorage.setItem(productKey, JSON.stringify(profile));
+  writeLocal(productKey, profile);
   document.querySelector('#product-status').textContent = 'Perfil salvo neste navegador.';
   renderOverview();
   return profile;
 }
 
 productForm.addEventListener('submit', (event) => saveProfile(event));
-
-let generatedProduct = readLocal(generatedProductKey, null);
 
 function renderGeneratedProduct(product) {
   const panel = document.querySelector('#generated-product-panel');
@@ -750,7 +824,7 @@ productGenerationForm.addEventListener('submit', async (event) => {
   const status = document.querySelector('#product-generation-status');
   const submitButton = document.querySelector('#generate-product');
   submitButton.disabled = true;
-  status.textContent = 'Cash está criando a estrutura e o conteúdo...';
+  status.textContent = 'Dinvaro IA está criando a estrutura e o conteúdo...';
 
   try {
     const response = await fetch('/api/product/generate', {
@@ -762,7 +836,7 @@ productGenerationForm.addEventListener('submit', async (event) => {
     if (!response.ok) throw new Error(result.error || 'Não foi possível gerar o produto.');
 
     generatedProduct = { ...result.product, format: productGenerationForm.elements.format.value };
-    localStorage.setItem(generatedProductKey, JSON.stringify(generatedProduct));
+    writeLocal(generatedProductKey, generatedProduct);
     renderGeneratedProduct(generatedProduct);
     status.textContent = 'Produto criado e salvo neste navegador. Revise o conteúdo.';
   } catch (error) {
@@ -815,24 +889,31 @@ function calculateFinance() {
     .filter((entry) => entry.type === type && Number.isFinite(entry.amount))
     .reduce((total, entry) => total + entry.amount, 0);
   const sales = sumType('sale');
+  const deposits = sumType('deposit');
   const costs = sumType('ad') + sumType('fee') + sumType('refund');
   const withdrawals = sumType('withdrawal');
   const net = sales - costs;
-  return { sales, costs, withdrawals, net, available: Math.max(0, net - withdrawals) };
+  const loss = Math.max(0, costs - sales);
+  return { sales, deposits, costs, withdrawals, net, loss, available: Math.max(0, net - withdrawals) };
 }
 
 function renderFinance() {
   const financials = calculateFinance();
   document.querySelector('#finance-available').textContent = brlFormatter.format(financials.available);
   document.querySelector('#finance-sales').textContent = brlFormatter.format(financials.sales);
+  document.querySelector('#finance-deposits').textContent = brlFormatter.format(financials.deposits);
   document.querySelector('#finance-costs').textContent = brlFormatter.format(financials.costs);
   document.querySelector('#finance-withdrawals').textContent = brlFormatter.format(financials.withdrawals);
   document.querySelector('#metric-free-profit').textContent = brlFormatter.format(liveBalance?.availableCents ?? financials.available * 100);
+  document.querySelector('#metric-estimated-loss').textContent = brlFormatter.format(financials.loss);
+  document.querySelector('#overview-loss-card').hidden = financials.loss <= 0;
+  document.querySelector('#finance-loss').textContent = brlFormatter.format(financials.loss);
+  document.querySelector('#finance-loss-card').hidden = financials.loss <= 0;
   document.querySelector('#summary-profit-label').textContent = liveBalance ? 'SALDO OFICIAL DISPONÍVEL' : 'LUCRO LIVRE ESTIMADO';
 
   const list = document.querySelector('#money-entry-list');
   list.replaceChildren();
-  const labels = { sale: 'Venda aprovada', ad: 'Gasto com anúncios', fee: 'Taxa da plataforma', refund: 'Reembolso', withdrawal: 'Saque já realizado' };
+  const labels = { sale: 'Venda aprovada', deposit: 'Depósito registrado', ad: 'Gasto com anúncios', fee: 'Taxa da plataforma', refund: 'Reembolso', withdrawal: 'Saque já realizado' };
   [...moneyEntries].sort((first, second) => second.date.localeCompare(first.date)).forEach((entry) => {
     const row = document.createElement('div');
     row.className = 'money-entry-row';
@@ -844,7 +925,7 @@ function renderFinance() {
     metadata.textContent = `${labels[entry.type] || 'Movimentação'} · ${entry.date || ''}`;
     detail.append(label, metadata);
     const amount = document.createElement('strong');
-    const positive = entry.type === 'sale';
+    const positive = ['sale', 'deposit'].includes(entry.type);
     amount.className = `money-entry-amount ${positive ? 'positive' : ''}`;
     amount.textContent = `${positive ? '+' : '−'} ${brlFormatter.format(entry.amount)}`;
     const remove = document.createElement('button');
@@ -871,8 +952,9 @@ function centsToMoney(cents) {
 async function showFinanceSession() {
   const response = await fetch('/api/finance/session');
   const result = await response.json();
-  financeAuthenticated = response.ok && result.authenticated === true;
-  document.querySelector('#finance-login-panel').hidden = financeAuthenticated;
+  const isOwner = result.account?.role === 'owner';
+  financeAuthenticated = response.ok && result.authenticated === true && isOwner;
+  document.querySelector('#finance-login-panel').hidden = !isOwner || financeAuthenticated;
   document.querySelector('#finance-connected-panel').hidden = !financeAuthenticated;
   if (!financeAuthenticated) return;
 
@@ -945,7 +1027,7 @@ async function refreshProviderBalance() {
     status.textContent = `Saldo atualizado às ${updatedAt}.`;
     const minimumMet = provider !== 'cakto' || result.availableCents >= 1_000;
     withdrawButton.disabled = result.availableCents <= 0 || !minimumMet;
-    withdrawButton.textContent = minimumMet ? 'Solicitar saque no Cash' : 'Mínimo para saque: R$ 10,00';
+    withdrawButton.textContent = minimumMet ? 'Solicitar saque no Dinvaro IA' : 'Mínimo para saque: R$ 10,00';
     document.querySelector('#finance-available').textContent = centsToMoney(result.availableCents);
     document.querySelector('#metric-free-profit').textContent = centsToMoney(result.availableCents);
     document.querySelector('#summary-profit-label').textContent = 'SALDO OFICIAL DISPONÍVEL';
@@ -1041,12 +1123,13 @@ document.querySelector('#finance-logout').addEventListener('click', async () => 
 });
 
 function saveMoneyEntries() {
-  localStorage.setItem(moneyEntriesKey, JSON.stringify(moneyEntries));
+  writeLocal(moneyEntriesKey, moneyEntries);
   renderFinance();
 }
 
-function openMoneyEntryDialog() {
+function openMoneyEntryDialog(type = 'sale') {
   moneyEntryForm.reset();
+  moneyEntryForm.elements.type.value = type;
   const now = new Date();
   moneyEntryForm.elements.date.value = new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
   moneyEntryDialog.showModal();
@@ -1054,6 +1137,7 @@ function openMoneyEntryDialog() {
 }
 
 document.querySelector('#open-money-entry').addEventListener('click', openMoneyEntryDialog);
+document.querySelector('#open-deposit').addEventListener('click', () => openMoneyEntryDialog('deposit'));
 document.querySelector('#open-money-entry-mobile').addEventListener('click', openMoneyEntryDialog);
 document.querySelector('#first-money-entry').addEventListener('click', openMoneyEntryDialog);
 document.querySelector('#close-money-entry').addEventListener('click', () => moneyEntryDialog.close());
@@ -1146,7 +1230,7 @@ function renderCampaignList(container, items) {
     remove.textContent = 'Excluir rascunho';
     remove.addEventListener('click', () => {
       campaigns = campaigns.filter((item) => item.id !== campaign.id);
-      localStorage.setItem(campaignsKey, JSON.stringify(campaigns));
+      writeLocal(campaignsKey, campaigns);
       renderOverview();
       renderCampaigns();
     });
@@ -1174,7 +1258,7 @@ campaignForm.addEventListener('submit', async (event) => {
 
   const campaign = Object.fromEntries(new FormData(campaignForm).entries());
   submitButton.disabled = true;
-  status.textContent = 'Cash está preparando as peças...';
+  status.textContent = 'Dinvaro IA está preparando as peças...';
 
   try {
     const response = await fetch('/api/generate', {
@@ -1195,7 +1279,7 @@ campaignForm.addEventListener('submit', async (event) => {
       createdAt: new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date()),
     };
     campaigns.unshift(generated);
-    localStorage.setItem(campaignsKey, JSON.stringify(campaigns));
+    writeLocal(campaignsKey, campaigns);
     document.querySelector('#output-title').textContent = campaign.name;
     document.querySelector('#output-content').textContent = result.content;
     document.querySelector('#generation-output').hidden = false;
@@ -1248,7 +1332,7 @@ function addMessage(role, content) {
   if (role === 'assistant') {
     const name = document.createElement('div');
     name.className = 'message-name';
-    name.textContent = 'Cash';
+    name.textContent = 'Dinvaro IA';
     body.append(name);
   }
 
@@ -1265,8 +1349,8 @@ function addMessage(role, content) {
 function showTyping() {
   const message = document.createElement('article');
   message.className = 'message assistant';
-  message.setAttribute('aria-label', 'Cash está pensando');
-  message.innerHTML = '<div class="message-avatar" aria-hidden="true">C</div><div class="message-body"><div class="message-name">Cash</div><div class="typing" aria-hidden="true"><span></span><span></span><span></span></div></div>';
+  message.setAttribute('aria-label', 'Dinvaro IA está pensando');
+  message.innerHTML = '<div class="message-avatar" aria-hidden="true">D</div><div class="message-body"><div class="message-name">Dinvaro IA</div><div class="typing" aria-hidden="true"><span></span><span></span><span></span></div></div>';
   messagesElement.append(message);
   chatScroll.scrollTop = chatScroll.scrollHeight;
   return message;
@@ -1288,7 +1372,7 @@ async function sendMessage(content) {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: history }),
+      body: JSON.stringify({ messages: history, product: profile }),
     });
     const result = await response.json();
     typing.remove();
@@ -1335,11 +1419,167 @@ function resetChat() {
 fetch('/api/health')
   .then((response) => response.json())
   .then(({ ready }) => {
-    document.querySelector('#connection-status').textContent = ready ? 'IA conectada' : 'IA não configurada';
-    document.querySelector('#connection-caption').textContent = ready ? 'Pronta para criar' : 'Configure a chave no servidor';
+    document.querySelector('#connection-status').textContent = ready ? 'Motor local ativo' : 'Motor indisponível';
+    document.querySelector('#connection-caption').textContent = ready ? 'Sem API externa' : 'Verifique o servidor';
     document.querySelector('.status-dot').classList.toggle('ready', ready);
   })
   .catch(() => {
     document.querySelector('#connection-status').textContent = 'Servidor indisponível';
     document.querySelector('#connection-caption').textContent = 'Tente recarregar a página';
   });
+
+function initializeMascot() {
+  const stage = document.querySelector('#mascot-stage');
+  const firstMascot = document.querySelector('#app-mascot');
+  const dashboardPage = document.querySelector('[data-workspace-page="dashboard"]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const jokes = [
+    'Fui contar as abas. Perdi a conta e ganhei experiência.',
+    'Um passo de cada vez. Minhas pernas são pequenas.',
+    'Fiz uma pausa dramática. Ninguém percebeu.',
+    'Estou patrulhando os pixels. Tudo em ordem.',
+    'Meu plano de crescimento: ganhar dois pixels até sexta.',
+    'Se campanha fosse corrida, eu ia de passinho.',
+    'Atualização do mascote: continuo pequeno, mas confiante.',
+    'Procurei a barra de progresso. Ela estava progredindo.',
+  ];
+  if (!stage || !firstMascot || reducedMotion.matches) return;
+
+  const secondMascot = firstMascot.cloneNode(true);
+  secondMascot.removeAttribute('id');
+  secondMascot.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+  secondMascot.dataset.direction = 'left';
+  secondMascot.classList.add('app-mascot-partner');
+  stage.append(secondMascot);
+  const characters = [firstMascot, secondMascot].map((element) => ({
+    element,
+    bubble: element.querySelector('.mascot-bubble'),
+    position: 0,
+    velocity: 0,
+  }));
+
+  let bounds = { minimum: 266, maximum: Math.max(266, window.innerWidth - 42) };
+  let previousFrame = 0;
+  let jokeSpeaker = 0;
+  let interactionEndsAt = 0;
+  let collisionCooldownUntil = 0;
+  let nextJokeAt = Date.now() + 15_000;
+  let previousJoke = -1;
+
+  function updateBounds() {
+    bounds.minimum = window.innerWidth > 760 ? 266 : 6;
+    bounds.maximum = Math.max(bounds.minimum + 64, window.innerWidth - 42);
+    if (!previousFrame) {
+      const distance = bounds.maximum - bounds.minimum;
+      characters[0].position = bounds.minimum + distance * 0.25;
+      characters[1].position = bounds.minimum + distance * 0.75;
+      characters[0].velocity = 34;
+      characters[1].velocity = -34;
+    }
+    characters.forEach((character) => {
+      character.position = Math.min(bounds.maximum, Math.max(bounds.minimum, character.position));
+      character.element.style.left = `${character.position}px`;
+    });
+  }
+
+  updateBounds();
+
+  function canWalk() {
+    const activeField = document.activeElement?.matches('input, textarea, select, [contenteditable="true"]');
+    return appAuthenticated
+      && !appContent.hidden
+      && !document.querySelector('#workspace-view').hidden
+      && !dashboardPage.hidden
+      && !document.querySelector('dialog[open]')
+      && !activeField
+      && document.visibilityState === 'visible'
+      && !reducedMotion.matches;
+  }
+
+  function updateVisibility() {
+    stage.hidden = !canWalk();
+    if (stage.hidden) {
+      characters.forEach(({ element, bubble }) => {
+        element.classList.remove('mascot-fighting', 'mascot-playing');
+        bubble.classList.remove('visible');
+      });
+      interactionEndsAt = 0;
+    }
+  }
+
+  function showJoke() {
+    let index = Math.floor(Math.random() * jokes.length);
+    if (jokes.length > 1 && index === previousJoke) index = (index + 1) % jokes.length;
+    previousJoke = index;
+    const speaker = characters[jokeSpeaker];
+    speaker.bubble.textContent = jokes[index];
+    speaker.bubble.classList.add('visible');
+    window.setTimeout(() => speaker.bubble.classList.remove('visible'), 4_800);
+    jokeSpeaker = (jokeSpeaker + 1) % characters.length;
+    nextJokeAt = Date.now() + 45_000 + Math.random() * 15_000;
+  }
+
+  function startCollision(timestamp) {
+    const isPlay = Math.random() < 0.5;
+    const reactions = isPlay
+      ? ['Batalha de dancinha!', 'Desafio aceito!']
+      : ['Foi sem querer!', 'Eu também te vi!'];
+    characters.forEach((character, index) => {
+      character.element.classList.add(isPlay ? 'mascot-playing' : 'mascot-fighting');
+      character.bubble.textContent = reactions[index];
+      character.bubble.classList.add('visible');
+      character.velocity *= -1;
+    });
+    interactionEndsAt = timestamp + 1_800;
+    collisionCooldownUntil = timestamp + 5_000;
+    nextJokeAt = Date.now() + 45_000 + Math.random() * 15_000;
+  }
+
+  function walk(timestamp) {
+    updateVisibility();
+    if (stage.hidden) {
+      previousFrame = 0;
+      window.setTimeout(() => window.requestAnimationFrame(walk), 1_200);
+      return;
+    }
+
+    if (!previousFrame) previousFrame = timestamp;
+    const delta = Math.min((timestamp - previousFrame) / 1_000, 0.05);
+    previousFrame = timestamp;
+
+    if (interactionEndsAt && timestamp >= interactionEndsAt) {
+      characters.forEach(({ element, bubble }) => {
+        element.classList.remove('mascot-fighting', 'mascot-playing');
+        bubble.classList.remove('visible');
+      });
+      interactionEndsAt = 0;
+    }
+
+    if (!interactionEndsAt) {
+      characters.forEach((character) => {
+        character.position += character.velocity * delta;
+        if (character.position <= bounds.minimum || character.position >= bounds.maximum) {
+          character.position = Math.min(bounds.maximum, Math.max(bounds.minimum, character.position));
+          character.velocity *= -1;
+        }
+        character.element.dataset.direction = character.velocity > 0 ? 'right' : 'left';
+        character.element.style.left = `${character.position}px`;
+      });
+
+      const distance = Math.abs(characters[0].position - characters[1].position);
+      if (distance <= 30 && timestamp >= collisionCooldownUntil) startCollision(timestamp);
+      else if (Date.now() >= nextJokeAt) showJoke();
+    }
+
+    window.requestAnimationFrame(walk);
+  }
+
+  document.addEventListener('focusin', updateVisibility);
+  document.addEventListener('focusout', () => window.setTimeout(updateVisibility, 0));
+  document.addEventListener('visibilitychange', updateVisibility);
+  reducedMotion.addEventListener('change', updateVisibility);
+  window.addEventListener('resize', updateBounds);
+  window.requestAnimationFrame(walk);
+}
+
+initializeMascot();
