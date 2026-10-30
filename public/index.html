@@ -12,7 +12,7 @@
     <section class="login-screen" id="login-screen" aria-label="Acesso ao Dinvaro IA">
       <div class="login-panel">
         <a class="brand login-brand" href="/" aria-label="Dinvaro IA">
-          <span class="brand-mark" aria-hidden="true">D</span>
+          <span class="brand-mark" aria-hidden="true"></span>
           <span>Dinvaro <span class="brand-period">IA</span></span>
         </a>
         <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> MARKETING OS</div>
@@ -37,11 +37,11 @@
     <main class="app-shell" id="app-content" hidden>
       <aside class="sidebar" aria-label="Navegação">
         <a class="brand" href="/" aria-label="Dinvaro IA, início">
-          <span class="brand-mark" aria-hidden="true">D</span>
+          <span class="brand-mark" aria-hidden="true"></span>
           <span>Dinvaro <span class="brand-period">IA</span></span>
         </a>
         <button class="new-chat" id="new-chat" type="button" hidden>
-          <span aria-hidden="true">＋</span> Nova conversa
+          <span class="button-plus" aria-hidden="true">＋</span> Nova conversa
         </button>
         <div class="sidebar-label">NAVEGAÇÃO</div>
         <nav class="side-navigation" aria-label="Seções do Dinvaro IA">
@@ -58,7 +58,10 @@
             <span class="nav-icon" aria-hidden="true">✳</span> Criar campanha
           </button>
           <button class="nav-item" type="button" data-page="product">
-            <span class="nav-icon" aria-hidden="true">◈</span> Produto
+            <span class="nav-icon" aria-hidden="true">◈</span> Criar produto
+          </button>
+          <button class="nav-item" type="button" data-page="my-products">
+            <span class="nav-icon" aria-hidden="true">▧</span> Meus produtos
           </button>
           <button class="nav-item" type="button" data-page="affiliates">
             <span class="nav-icon" aria-hidden="true">↗</span> Afiliados
@@ -72,7 +75,18 @@
           <button class="nav-item" type="button" data-page="assistant">
             <span class="nav-icon" aria-hidden="true">◌</span> Assistente IA
           </button>
+          <button class="nav-item" type="button" data-page="plans">
+            <span class="nav-icon" aria-hidden="true">◇</span> Planos
+          </button>
+          <button class="nav-item" type="button" data-page="profile">
+            <span class="nav-icon" aria-hidden="true">◎</span> Meu perfil
+          </button>
         </nav>
+        <button class="sidebar-profile" type="button" data-page="profile" aria-label="Abrir meu perfil">
+          <span class="sidebar-avatar" id="sidebar-avatar">U</span>
+          <span class="sidebar-profile-copy"><strong id="sidebar-account-name">Meu perfil</strong><small>Editar perfil</small></span>
+          <span class="sidebar-profile-arrow" aria-hidden="true">↗</span>
+        </button>
         <div class="sidebar-bottom">
           <div class="status-dot" aria-hidden="true"></div>
           <div>
@@ -85,26 +99,46 @@
 
       <section class="conversation dashboard-view" id="workspace-view" aria-label="Central de marketing">
         <header class="topbar">
-          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">D</span> Dinvaro <span class="brand-period">IA</span></div>
-          <nav class="mobile-switcher" aria-label="Seções do Dinvaro IA">
-            <button class="mobile-nav-item active" type="button" data-page="dashboard">Visão</button>
-            <button class="mobile-nav-item" type="button" data-page="finance">Ganhos</button>
-            <button class="mobile-nav-item" type="button" data-page="campaigns">Campanhas</button>
-            <button class="mobile-nav-item" type="button" data-page="create">Criar</button>
-            <button class="mobile-nav-item" type="button" data-page="product">Produto</button>
-            <button class="mobile-nav-item" type="button" data-page="affiliates">Afiliados</button>
-            <button class="mobile-nav-item" type="button" data-page="promotion">Impulsionar</button>
-            <button class="mobile-nav-item" type="button" data-page="integrations">Conectar</button>
-            <button class="mobile-nav-item" type="button" data-page="assistant">IA</button>
-          </nav>
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true"></span> Dinvaro <span class="brand-period">IA</span></div>
+          <details class="mobile-panel-menu">
+            <summary><span class="menu-icon" aria-hidden="true">⚙︎</span><span class="menu-trigger-copy"><span class="menu-eyebrow">NAVEGAR POR</span><span class="menu-current">Visão geral</span></span><span class="menu-chevron" aria-hidden="true">⌄</span></summary>
+            <nav class="mobile-panel-links" aria-label="Todos os painéis do Dinvaro IA">
+              <div class="mobile-menu-heading"><span>WORKSPACE</span><strong>Todos os painéis</strong></div>
+              <button class="mobile-nav-item active" type="button" data-page="dashboard">Visão geral</button>
+              <button class="mobile-nav-item" type="button" data-page="finance">Ganhos</button>
+              <button class="mobile-nav-item" type="button" data-page="campaigns">Campanhas</button>
+              <button class="mobile-nav-item" type="button" data-page="create">Criar campanha</button>
+              <button class="mobile-nav-item" type="button" data-page="product">Criar produto</button>
+              <button class="mobile-nav-item" type="button" data-page="my-products">Meus produtos</button>
+              <button class="mobile-nav-item" type="button" data-page="affiliates">Afiliados</button>
+              <button class="mobile-nav-item" type="button" data-page="promotion">Impulsionar</button>
+              <button class="mobile-nav-item" type="button" data-page="integrations">Integrações</button>
+              <button class="mobile-nav-item" type="button" data-page="assistant">Assistente IA</button>
+              <button class="mobile-nav-item" type="button" data-page="plans">Planos</button>
+              <button class="mobile-nav-item" type="button" data-page="profile">Meu perfil</button>
+            </nav>
+          </details>
           <div class="topbar-label">DINVARO IA / MARKETING OS</div>
-          <button class="add-transaction" type="button" data-page="create"><span aria-hidden="true">＋</span> Nova campanha</button>
+          <div class="topbar-mailboxes">
+            <button class="mailbox-trigger" id="sales-mailbox-button" type="button" data-owner-only aria-label="Abrir notificações de vendas" title="Notificações de vendas">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 7l8 6 8-6" /></svg>
+              <span>Vendas</span><span class="mailbox-badge" id="sales-notification-count" hidden>0</span>
+            </button>
+            <button class="mailbox-trigger gift-mailbox-trigger" id="gift-mailbox-button" type="button" aria-label="Abrir correio de presentes" title="Correio de presentes">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18v11H3zM2 6h20v4H2zM12 6v15m0-15H8.5a2.5 2.5 0 1 1 2.5-2.5V6Zm0 0h3.5a2.5 2.5 0 1 0-2.5-2.5V6Z" /></svg>
+              <span>Presentes</span><span class="mailbox-badge" id="gift-notification-count" hidden>0</span>
+            </button>
+          </div>
+          <button class="add-transaction" type="button" data-page="create"><span class="button-plus" aria-hidden="true">＋</span> Nova campanha</button>
           <button class="icon-button mobile-logout" type="button" data-app-logout aria-label="Sair do Dinvaro IA" title="Sair do Dinvaro IA"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" /></svg></button>
         </header>
 
         <div class="dashboard-scroll">
           <div class="dashboard-content">
             <section class="workspace-page" data-workspace-page="dashboard">
+              <div class="dashboard-banner">
+                <img src="/banner.png" alt="Banner do Dinvaro IA" fetchpriority="high">
+              </div>
               <div class="dashboard-heading">
                 <div>
                   <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> CENTRAL DE CRESCIMENTO</div>
@@ -113,7 +147,7 @@
                 </div>
                 <div class="dashboard-heading-actions">
                   <button class="add-transaction" type="button" data-page="finance">Ver painel de ganhos <span aria-hidden="true">↗</span></button>
-                  <button class="add-transaction mobile-add" type="button" data-page="create"><span aria-hidden="true">＋</span> Criar campanha</button>
+                  <button class="add-transaction mobile-add" type="button" data-page="create"><span class="button-plus" aria-hidden="true">＋</span> Criar campanha</button>
                 </div>
               </div>
 
@@ -124,6 +158,11 @@
                 <article class="metric-card"><div class="metric-label">RASCUNHOS</div><div class="metric-value" id="metric-drafts">0</div><div class="metric-foot">Aguardando sua revisão</div></article>
                 <article class="metric-card"><div class="metric-label">PRODUTO ATIVO</div><div class="metric-value metric-product" id="metric-product">Não configurado</div><div class="metric-foot" id="metric-product-detail">Adicione os dados do produto</div></article>
               </div>
+
+              <section class="dashboard-platform-balance" id="overview-platform-balance-panel" data-owner-only hidden aria-label="Saldo disponível nas plataformas">
+                <div><div class="metric-label" id="overview-platform-balance-label">SALDO SOMADO NAS PLATAFORMAS</div><strong id="overview-platform-balance">--</strong><p id="overview-platform-balance-status">Acesse Ganhos para consultar as contas conectadas.</p></div>
+                <button class="text-action" type="button" data-page="finance">Ver saldos e saques <span aria-hidden="true">↗</span></button>
+              </section>
 
               <section class="launch-banner">
                 <div class="launch-orbit" aria-hidden="true"><span>✳</span></div>
@@ -138,8 +177,103 @@
               </section>
             </section>
 
+            <section class="workspace-page" data-workspace-page="plans" hidden>
+              <section class="billing-hero">
+                <div class="billing-hero-brand">
+                  <img class="billing-brand-logo" src="/logo.png" alt="Logo Dinvaro">
+                  <span>DINVARO <strong>IA</strong><i></i></span>
+                </div>
+                <div class="billing-hero-copy">
+                  <div class="billing-hero-kicker"><span></span> PLANOS DINVARO IA</div>
+                  <h1>Seu próximo nível<span>.</span></h1>
+                  <p>As ferramentas certas para transformar suas ideias em movimento.</p>
+                </div>
+                <div class="billing-hero-cycle"><span class="billing-cycle-icon">↻</span><span>PLANOS<br><strong>MENSAIS</strong></span></div>
+                <div class="billing-hero-grid" aria-hidden="true"></div>
+              </section>
+              <section class="panel billing-current-panel" aria-live="polite">
+                <div>
+                  <div class="billing-current-label"><span></span> PLANO ATUAL</div>
+                  <h2 id="billing-current-plan">Carregando plano...</h2>
+                  <p id="billing-subscription-status" class="billing-subscription-status">Consultando sua assinatura.</p>
+                  <p id="billing-usage" class="generation-status"></p>
+                </div>
+                <div class="billing-current-actions">
+                  <p id="billing-next-payment" class="generation-status"></p>
+                  <button class="text-action" id="billing-resume-checkout" type="button" hidden>Continuar pagamento ↗</button>
+                  <button class="text-action billing-cancel-button" id="billing-cancel" type="button" hidden>Cancelar assinatura</button>
+                </div>
+              </section>
+              <div class="billing-section-heading">
+                <div><span>ESCOLHA SEU ACESSO</span><h2>Um plano para cada momento.</h2></div>
+              <p>Sem fidelidade, sem surpresas.<br><strong>Pagamento seguro pelo Mercado Pago.</strong></p>
+              </div>
+              <p class="generation-status billing-notice" id="billing-notice" role="status">O plano só é liberado após confirmação do Mercado Pago.</p>
+              <section class="panel coupon-panel" data-member-only hidden>
+                <div class="brief-section-title"><span class="step-number">✦</span><div><h2>Tem um cupom?</h2><p>Resgate seu código para ativar o Premium conforme o período da promoção.</p></div></div>
+                <form class="coupon-form" id="coupon-redemption-form">
+                  <label class="field-label" for="coupon-redemption-code">Código do cupom</label>
+                  <div class="coupon-form-row"><input id="coupon-redemption-code" name="code" type="text" maxlength="32" autocomplete="off" placeholder="DINVARO-XXXXXXXXXXXXXXXX" required><button class="save-transaction" id="redeem-coupon-button" type="submit">Resgatar cupom</button></div>
+                </form>
+                <p class="generation-status" id="coupon-redemption-status" role="status">Cada conta pode resgatar um mesmo código uma vez. A promoção não inicia uma cobrança.</p>
+              </section>
+              <section class="panel coupon-panel coupon-admin-panel" id="coupon-admin-panel" data-owner-only hidden>
+                <div class="brief-section-title"><span class="step-number">◇</span><div><h2>Gerenciar cupons</h2><p>Crie códigos compartilhados de Premium grátis e escolha quantas contas podem usá-los.</p></div></div>
+                <form class="coupon-form" id="coupon-create-form">
+                  <label class="field-label" for="coupon-custom-code">Código personalizado</label>
+                  <input id="coupon-custom-code" name="code" type="text" minlength="3" maxlength="32" pattern="[A-Za-z0-9@][A-Za-z0-9@-]{2,31}" placeholder="Ex.: JV23102008@" autocomplete="off" required>
+                  <label class="field-label" for="coupon-access-type">Duração do Premium</label>
+                  <select id="coupon-access-type" name="accessType"><option value="monthly">1 mês grátis</option><option value="permanent">Permanente</option></select>
+                  <label class="field-label" for="coupon-max-uses">Limite de utilizações</label>
+                  <div class="coupon-form-row"><input id="coupon-max-uses" name="maxUses" type="number" min="1" max="500" value="5" required><button class="save-transaction" id="create-coupon-button" type="submit">Gerar cupom</button></div>
+                </form>
+                <p class="generation-status" id="coupon-admin-status" role="status">Cada conta pode resgatar o código uma vez. O Premium permanente não expira.</p>
+                <div class="coupon-list" id="coupon-list" aria-live="polite"></div>
+              </section>
+              <div class="billing-plan-grid" id="billing-plan-grid"></div>
+              <dialog class="integration-dialog gift-checkout-dialog" id="gift-checkout-dialog" aria-labelledby="gift-checkout-title">
+                <form class="gift-send-form" id="paid-gift-checkout-form">
+                  <div class="dialog-heading">
+                    <div><div class="welcome-kicker">UM PRESENTE ESPECIAL</div><h2 id="gift-checkout-title">Enviar um plano</h2></div>
+                    <button class="dialog-close" id="close-gift-checkout" type="button" aria-label="Fechar compra de presente">×</button>
+                  </div>
+                  <p class="integration-dialog-description" id="gift-checkout-plan-summary">Pagamento único pelo Mercado Pago. O plano vale por um mês após o destinatário resgatar.</p>
+                  <div><label class="field-label" for="paid-gift-recipient-name">Nome de quem vai receber</label><input id="paid-gift-recipient-name" name="name" minlength="2" maxlength="80" autocomplete="name" required></div>
+                  <div><label class="field-label" for="paid-gift-recipient-email">E-mail da conta Dinvaro IA</label><input id="paid-gift-recipient-email" name="email" type="email" maxlength="254" autocomplete="email" required></div>
+                  <div class="generation-actions"><button class="save-transaction" id="pay-gift-button" type="submit">Continuar para pagamento</button><span class="generation-status" id="paid-gift-checkout-status" role="status">O e-mail precisa pertencer a uma conta cadastrada. Após a confirmação, o presente aparece no correio do app; não enviamos e-mail automático.</span></div>
+                </form>
+              </dialog>
+              <div class="billing-trust-banner"><img src="/billing-banner.png" alt="Informações sobre controle e segurança da assinatura" loading="lazy"></div>
+            </section>
+
+            <section class="workspace-page" data-workspace-page="profile" hidden>
+              <div class="dashboard-heading">
+                <div><div class="welcome-kicker">SUA CONTA</div><h1>Meu perfil<span class="heading-period">.</span></h1><p class="month-label">Personalize seu nome e sua foto. Seu nome precisa ser exclusivo.</p></div>
+              </div>
+              <section class="panel account-profile-panel">
+                <div class="account-profile-heading">
+                  <div class="account-profile-avatar" id="profile-avatar-preview" aria-label="Prévia da foto de perfil">U</div>
+                  <div><span class="metric-label">FOTO DE PERFIL</span><p>Escolha uma imagem JPEG, PNG ou WebP.</p></div>
+                </div>
+                <form id="account-profile-form" class="account-profile-form">
+                  <label class="field-label" for="profile-avatar-file">Foto</label>
+                  <input id="profile-avatar-file" type="file" accept="image/jpeg,image/png,image/webp">
+                  <button class="text-action" id="remove-profile-avatar" type="button">Remover foto</button>
+                  <label class="field-label" for="profile-display-name">Nome de exibição exclusivo</label>
+                  <input id="profile-display-name" name="name" type="text" minlength="2" maxlength="32" autocomplete="nickname" required>
+                  <label class="field-label" for="profile-email">E-mail da conta</label>
+                  <input id="profile-email" type="email" readonly>
+                  <button class="save-transaction" id="save-account-profile" type="submit">Salvar perfil</button>
+                  <p class="generation-status" id="profile-save-status" role="status">Seu nome será único entre as contas Dinvaro IA.</p>
+                </form>
+              </section>
+            </section>
+
             <section class="workspace-page" data-workspace-page="finance" hidden>
-              <div class="dashboard-heading"><div><div class="welcome-kicker">RESULTADO DA SUA OPERAÇÃO</div><h1>Ganhos<span class="heading-period">.</span></h1><p class="month-label">Lucro livre, prejuízo estimado e movimentações da sua operação.</p></div><button class="add-transaction mobile-add" id="open-money-entry-mobile" type="button">＋ Registrar</button></div>
+              <div class="finance-banner">
+                <img src="/earnings-banner.png" alt="Banner do painel de ganhos" loading="lazy">
+              </div>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">RESULTADO DA SUA OPERAÇÃO</div><h1>Ganhos<span class="heading-period">.</span></h1><p class="month-label">Lucro livre, prejuízo estimado e movimentações da sua operação.</p></div><button class="add-transaction mobile-add" id="open-money-entry-mobile" type="button"><span class="button-plus" aria-hidden="true">＋</span> Registrar</button></div>
               <section class="panel finance-login" id="finance-login-panel" data-owner-only hidden>
                 <div class="brief-section-title"><span class="step-number">◇</span><div><h2>Acessar saldo e saques</h2><p>Entre no painel financeiro protegido para consultar os valores reais do checkout.</p></div></div>
                 <form id="finance-login-form" class="finance-login-form">
@@ -150,16 +284,26 @@
               </section>
               <section class="finance-connected" id="finance-connected-panel" data-owner-only hidden>
                 <div class="finance-live-panel">
-                  <div class="finance-live-heading"><div><div class="metric-label">SALDO OFICIAL DO CHECKOUT</div><h2 id="live-provider-name">Kiwify</h2></div><div class="finance-live-actions"><button class="icon-button" id="refresh-provider-balance" type="button" title="Atualizar saldo" aria-label="Atualizar saldo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5m8-3a6 6 0 0 0-10-2L4 12m16 0-3 5a6 6 0 0 1-10 0" /></svg></button><button class="text-action" id="finance-logout" type="button">Sair</button></div></div>
-                  <label class="field-label" for="live-provider-select">Conta conectada</label>
-                  <select id="live-provider-select" class="withdrawal-select"><option value="kiwify">Kiwify</option><option value="cakto">Cakto</option></select>
-                  <div class="live-balance-grid"><div><span>Disponível para saque</span><strong id="live-available">--</strong></div><div><span>Em processamento</span><strong id="live-pending">--</strong></div></div>
-                  <div class="generation-actions"><button class="save-transaction" id="open-secure-withdrawal" type="button" disabled>Solicitar saque no Dinvaro IA</button><span class="generation-status" id="live-balance-status" role="status">Saldo ainda não consultado.</span></div>
-                  <div class="finance-disclaimer">O valor vem da API oficial. Atualize antes de sacar; a plataforma pode alterar o saldo, aplicar taxas ou colocar o pedido em análise.</div>
+                  <div class="finance-live-heading"><div><div class="metric-label">SALDO DISPONÍVEL CONSOLIDADO</div><h2>Plataformas conectadas</h2></div><div class="finance-live-actions"><button class="icon-button" id="refresh-provider-balance" type="button" title="Atualizar saldos" aria-label="Atualizar saldos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5m8-3a6 6 0 0 0-10-2L4 12m16 0-3 5a6 6 0 0 1-10 0" /></svg></button><button class="text-action" id="finance-logout" type="button">Sair</button></div></div>
+                  <div class="finance-aggregate-total"><span id="live-aggregate-label">Soma disponível</span><strong id="live-aggregate-available">--</strong></div>
+                  <div class="provider-balance-list" id="provider-balance-list"></div>
+                  <p class="generation-status" id="live-balance-status" role="status">Saldos ainda não consultados.</p>
+                  <div class="finance-disclaimer">A soma é apenas informativa: o dinheiro continua em cada plataforma. Cada saque é enviado à plataforma correspondente e segue as regras e taxas dela; não há transferência ou divisão para o Dinvaro IA.</div>
                 </div>
               </section>
-              <div class="metric-grid finance-metrics" aria-label="Resumo financeiro">
-                <article class="metric-card balance-card"><div class="metric-label">LUCRO LIVRE ESTIMADO</div><div class="metric-value" id="finance-available">R$ 0,00</div><div class="metric-foot">Depois de custos e saques anotados</div></article>
+              <div class="finance-platform-tabs" role="tablist" aria-label="Resumo financeiro por plataforma">
+                <button class="finance-platform-tab active" id="finance-platform-tab-all" type="button" role="tab" aria-selected="true" aria-controls="finance-platform-panel" data-finance-platform="all">Todas</button>
+                <button class="finance-platform-tab finance-tab-kiwify" id="finance-platform-tab-kiwify" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="kiwify" tabindex="-1">Kiwify</button>
+                <button class="finance-platform-tab finance-tab-cakto" id="finance-platform-tab-cakto" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="cakto" tabindex="-1">Cakto</button>
+                <button class="finance-platform-tab finance-tab-instagram" id="finance-platform-tab-instagram" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="instagram" tabindex="-1">Instagram</button>
+                <button class="finance-platform-tab finance-tab-tiktok" id="finance-platform-tab-tiktok" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="tiktok" tabindex="-1">TikTok</button>
+                <button class="finance-platform-tab finance-tab-facebook" id="finance-platform-tab-facebook" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="facebook" tabindex="-1">Facebook</button>
+                <button class="finance-platform-tab finance-tab-youtube" id="finance-platform-tab-youtube" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="youtube" tabindex="-1">YouTube</button>
+                <button class="finance-platform-tab finance-tab-hotmart" id="finance-platform-tab-hotmart" type="button" role="tab" aria-selected="false" aria-controls="finance-platform-panel" data-finance-platform="hotmart" tabindex="-1">Hotmart</button>
+              </div>
+              <p class="finance-platform-context" id="finance-platform-context" aria-live="polite"></p>
+              <div class="metric-grid finance-metrics" id="finance-platform-panel" role="tabpanel" aria-labelledby="finance-platform-tab-all" tabindex="0">
+                <article class="metric-card balance-card"><div class="metric-label" id="finance-profit-label">LUCRO LIVRE ESTIMADO</div><div class="metric-value" id="finance-available">R$ 0,00</div><div class="metric-foot">Vendas aprovadas menos custos, reembolsos e saques anotados</div></article>
                 <article class="metric-card loss-card" id="finance-loss-card" hidden><div class="metric-label">PERDA ESTIMADA</div><div class="metric-value" id="finance-loss">R$ 0,00</div><div class="metric-foot">Custos acima das vendas registradas</div></article>
                 <article class="metric-card"><div class="metric-label">VENDAS APROVADAS</div><div class="metric-value" id="finance-sales">R$ 0,00</div><div class="metric-foot">Movimentações registradas</div></article>
                 <article class="metric-card"><div class="metric-label">CUSTOS E REEMBOLSOS</div><div class="metric-value" id="finance-costs">R$ 0,00</div><div class="metric-foot">Anúncios, taxas e reembolsos</div></article>
@@ -167,22 +311,28 @@
                 <article class="metric-card"><div class="metric-label">DEPÓSITOS REGISTRADOS</div><div class="metric-value" id="finance-deposits">R$ 0,00</div><div class="metric-foot">Lançamentos manuais</div></article>
               </div>
               <div class="finance-formula"><span class="formula-mark" aria-hidden="true">∑</span><span>Disponível estimado = vendas aprovadas − anúncios − taxas − reembolsos − saques anotados.</span></div>
-              <div class="finance-actions"><button class="save-transaction" id="open-money-entry" type="button">＋ Registrar movimentação</button><button class="save-transaction" id="open-deposit" type="button">＋ Registrar depósito</button><button class="launch-button" id="open-withdrawal" type="button">Sacar dinheiro <span aria-hidden="true">↗</span></button></div>
+              <div class="finance-actions"><button class="save-transaction" id="open-money-entry" type="button"><span class="button-plus" aria-hidden="true">＋</span> Registrar movimentação</button><button class="save-transaction" id="open-deposit" type="button"><span class="button-plus" aria-hidden="true">＋</span> Registrar depósito</button><button class="launch-button" id="open-withdrawal" type="button">Sacar dinheiro <span aria-hidden="true">↗</span></button></div>
               <section class="panel activity-panel finance-activity">
-                <div class="panel-heading activity-heading"><div><h2>Movimentações</h2><p>Dados salvos somente neste navegador</p></div><span class="activity-count" id="money-entry-count">0 registros</span></div>
+                <div class="panel-heading activity-heading"><div><h2>Movimentações</h2><p>Lançamentos manuais neste navegador; vendas automáticas salvas no servidor.</p><p id="platform-sales-status" role="status">Entre no painel financeiro para sincronizar vendas.</p></div><span class="activity-count" id="money-entry-count">0 registros</span></div>
                 <div id="money-entry-list" class="money-entry-list"></div>
-                <div class="empty-activity" id="empty-money-entries"><span class="empty-mark" aria-hidden="true">＄</span><span>Registre vendas e custos para estimar seu lucro.</span><button class="text-action" id="first-money-entry" type="button">Adicionar movimentação</button></div>
+                <div class="empty-activity" id="empty-money-entries"><span class="empty-mark" aria-hidden="true">＄</span><span>As vendas das plataformas aparecerão aqui após configurar os webhooks.</span><button class="text-action" id="first-money-entry" type="button">Adicionar movimentação</button></div>
               </section>
-              <p class="finance-disclaimer">Estimativa manual, não é o saldo oficial da Kiwify, Cakto ou Hotmart. O Dinvaro IA não guarda nem transfere dinheiro. Saques são feitos no painel do seu checkout.</p>
+              <p class="finance-disclaimer">Use as abas para conferir o lucro estimado por plataforma. Vendas automáticas disponíveis para Kiwify e Cakto após configurar os webhooks em um servidor público HTTPS; Instagram, TikTok, Facebook, YouTube e Hotmart mostram apenas movimentações atribuídas manualmente. Aprovações, reembolsos e chargebacks são sincronizados; moedas diferentes de BRL aparecem nas movimentações, mas não entram nas estimativas em reais. Registros manuais não são conciliados com os webhooks e podem duplicar uma venda. Saldos oficiais continuam nas contas das próprias plataformas.</p>
             </section>
 
             <section class="workspace-page" data-workspace-page="campaigns" hidden>
-              <div class="dashboard-heading"><div><div class="welcome-kicker">BIBLIOTECA</div><h1>Suas campanhas<span class="heading-period">.</span></h1><p class="month-label">Materiais gerados e organizados para revisão.</p></div><button class="add-transaction mobile-add" type="button" data-page="create">＋ Criar</button></div>
+              <div class="campaigns-banner">
+                <img src="/campaigns-banner.png" alt="Banner do painel de campanhas" loading="lazy">
+              </div>
+              <div class="dashboard-heading"><div><div class="welcome-kicker">BIBLIOTECA</div><h1>Suas campanhas<span class="heading-period">.</span></h1><p class="month-label">Materiais gerados e organizados para revisão.</p></div><button class="add-transaction mobile-add" type="button" data-page="create"><span class="button-plus" aria-hidden="true">＋</span> Criar</button></div>
               <div class="campaign-list campaign-library" id="campaign-library"></div>
               <div class="empty-activity" id="empty-library"><span class="empty-mark" aria-hidden="true">✳</span><span>Seu próximo lançamento começa com uma ideia.</span><button class="text-action" type="button" data-page="create">Criar campanha</button></div>
             </section>
 
             <section class="workspace-page" data-workspace-page="create" hidden>
+              <div class="create-campaign-banner">
+                <img src="/create-campaign-banner.png" alt="Banner do painel de criação de campanhas" loading="lazy">
+              </div>
               <div class="dashboard-heading"><div><div class="welcome-kicker">GERAÇÃO ASSISTIDA POR IA</div><h1>Novo briefing<span class="heading-period">.</span></h1><p class="month-label">Defina a direção. Revise cada peça antes de publicar.</p></div></div>
               <form class="panel brief-form" id="campaign-form">
                 <div class="brief-section-title"><span class="step-number">01</span><div><h2>O que vamos criar?</h2><p>Escolha o formato e o canal para esta campanha.</p></div></div>
@@ -203,6 +353,9 @@
             </section>
 
             <section class="workspace-page" data-workspace-page="integrations" hidden>
+              <div class="integrations-banner">
+                <img src="/integrations-banner.png" alt="Banner do painel de integrações" loading="lazy">
+              </div>
               <div class="dashboard-heading"><div><div class="welcome-kicker">CANAIS E CHECKOUTS</div><h1>Integrações<span class="heading-period">.</span></h1><p class="month-label">Conecte seus canais para preparar a publicação e acompanhar vendas.</p></div></div>
               <div class="integration-group"><div class="integration-group-heading"><h2>Redes sociais</h2><span>PUBLICAÇÃO E CONTEÚDO</span></div><div class="integration-grid" id="social-integrations"></div></div>
               <div class="integration-group"><div class="integration-group-heading"><h2>Plataformas de venda</h2><span>CHECKOUT E EVENTOS DE VENDA</span></div><div class="integration-grid" id="sales-integrations"></div></div>
@@ -238,7 +391,10 @@
               <p class="finance-disclaimer">Confirme existência, qualidade, preço, comissão, regras de divulgação e autorização para promover cada oferta diretamente na plataforma. As sugestões da IA não são produtos verificados.</p>
             </section>
 
-            <section class="workspace-page" data-workspace-page="promotion" hidden>
+            <section class="workspace-page promotion-workspace" data-workspace-page="promotion" hidden>
+              <div class="promotion-banner">
+                <img src="/promotion-banner.png" alt="Banner do painel Impulsionar" loading="lazy">
+              </div>
               <div class="dashboard-heading"><div><div class="welcome-kicker">DISTRIBUIÇÃO DE CONTEÚDO</div><h1>Impulsionar<span class="heading-period">.</span></h1><p class="month-label">Planeje o orçamento e monte uma cadência de conteúdo para alcançar mais pessoas.</p></div></div>
               <section class="panel ad-budget-panel">
                 <div class="panel-heading"><div><h2>Adicionar saldo de anúncios</h2><p>Planeje o valor e abra a cobrança oficial da plataforma.</p></div><div class="planned-budget-total"><span>ORÇAMENTO PLANEJADO</span><strong id="planned-budget-total">R$ 0,00</strong></div></div>
@@ -263,7 +419,24 @@
               <div class="empty-activity" id="empty-promotion-plans"><span class="empty-mark" aria-hidden="true">◎</span><span>Seus planos de divulgação aparecerão aqui.</span></div>
             </section>
 
+            <section class="workspace-page" data-workspace-page="my-products" hidden>
+              <div class="dashboard-heading">
+                <div><div class="welcome-kicker">BIBLIOTECA DA SUA CONTA</div><h1>Meus produtos<span class="heading-period">.</span></h1><p class="month-label">Veja os produtos criados, edite suas capas e escolha os canais de publicação.</p></div>
+                <button class="add-transaction" type="button" data-page="product"><span class="button-plus" aria-hidden="true">＋</span> Criar produto</button>
+              </div>
+              <section class="panel product-library-notice">
+                <span class="step-number">⇄</span>
+                <div><p>Selecione os destinos e salve sua preferência. A publicação automática exige autorização e integração oficial de cada plataforma; enquanto elas não estiverem conectadas, nenhum conteúdo será publicado.</p><p class="generation-status" id="product-library-status" role="status">A biblioteca fica salva neste navegador.</p></div>
+                <button class="text-action" type="button" data-page="integrations">Ver integrações</button>
+              </section>
+              <div class="product-library-grid" id="product-library-grid"></div>
+              <div class="empty-activity product-library-empty" id="empty-product-library"><span class="empty-mark" aria-hidden="true">◈</span><span>Nenhum produto criado ainda.</span><button class="add-transaction" type="button" data-page="product">Criar meu primeiro produto</button></div>
+            </section>
+
             <section class="workspace-page" data-workspace-page="product" hidden>
+              <div class="product-banner">
+                <img src="/product-banner.png" alt="Banner do painel de produto" loading="lazy">
+              </div>
               <div class="dashboard-heading"><div><div class="welcome-kicker">BASE DA SUA COMUNICAÇÃO</div><h1>Seu produto<span class="heading-period">.</span></h1><p class="month-label">Informações verdadeiras ajudam a IA a criar mensagens melhores.</p></div></div>
               <form class="panel brief-form product-generator-form" id="product-generation-form">
                 <div class="brief-section-title"><span class="step-number">✳</span><div><h2>Crie um produto digital com o Dinvaro IA</h2><p>Descreva a ideia. O motor local monta uma estrutura editável para você revisar.</p></div></div>
@@ -277,7 +450,7 @@
               <section class="panel output-panel generated-product-panel" id="generated-product-panel" hidden>
                 <div class="panel-heading"><div><div class="welcome-kicker">PRODUTO GERADO · REVISE ANTES DE VENDER</div><h2 id="generated-product-name">Seu produto</h2><p id="generated-product-price"></p></div><button class="text-action" id="copy-product" type="button">Copiar conteúdo</button></div>
                 <pre class="campaign-output" id="generated-product-content"></pre>
-                <div class="generation-actions product-output-actions"><button class="save-transaction" id="use-generated-product" type="button">Preencher perfil do produto</button><span class="generation-status">Preço e promessas precisam de validação antes da oferta.</span></div>
+                <div class="generation-actions product-output-actions"><button class="save-transaction" id="use-generated-product" type="button">Preencher perfil do produto</button><button class="text-action" type="button" data-page="my-products">Ver em Meus produtos</button><span class="generation-status">Preço e promessas precisam de validação antes da oferta.</span></div>
               </section>
               <form class="panel brief-form product-form" id="product-form">
                 <div class="brief-section-title"><span class="step-number">✳</span><div><h2>Perfil da oferta</h2><p>Esses dados ficam salvos somente neste navegador.</p></div></div>
@@ -296,17 +469,25 @@
 
       <section class="conversation assistant-view" id="assistant-view" aria-label="Chat com Dinvaro IA" hidden>
         <header class="topbar">
-          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">D</span> Dinvaro <span class="brand-period">IA</span></div>
-          <nav class="mobile-switcher" aria-label="Seções do Dinvaro IA">
-            <button class="mobile-nav-item" type="button" data-page="dashboard">Visão</button>
-            <button class="mobile-nav-item" type="button" data-page="finance">Ganhos</button>
-            <button class="mobile-nav-item" type="button" data-page="campaigns">Campanhas</button>
-            <button class="mobile-nav-item" type="button" data-page="create">Criar</button>
-            <button class="mobile-nav-item" type="button" data-page="product">Produto</button>
-            <button class="mobile-nav-item" type="button" data-page="affiliates">Afiliados</button>
-            <button class="mobile-nav-item" type="button" data-page="integrations">Conectar</button>
-            <button class="mobile-nav-item active" type="button" data-page="assistant">IA</button>
-          </nav>
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true"></span> Dinvaro <span class="brand-period">IA</span></div>
+          <details class="mobile-panel-menu">
+            <summary><span class="menu-icon" aria-hidden="true">⚙︎</span><span class="menu-trigger-copy"><span class="menu-eyebrow">NAVEGAR POR</span><span class="menu-current">Assistente IA</span></span><span class="menu-chevron" aria-hidden="true">⌄</span></summary>
+            <nav class="mobile-panel-links" aria-label="Todos os painéis do Dinvaro IA">
+              <div class="mobile-menu-heading"><span>WORKSPACE</span><strong>Todos os painéis</strong></div>
+              <button class="mobile-nav-item" type="button" data-page="dashboard">Visão geral</button>
+              <button class="mobile-nav-item" type="button" data-page="finance">Ganhos</button>
+              <button class="mobile-nav-item" type="button" data-page="campaigns">Campanhas</button>
+              <button class="mobile-nav-item" type="button" data-page="create">Criar campanha</button>
+              <button class="mobile-nav-item" type="button" data-page="product">Criar produto</button>
+              <button class="mobile-nav-item" type="button" data-page="my-products">Meus produtos</button>
+              <button class="mobile-nav-item" type="button" data-page="affiliates">Afiliados</button>
+              <button class="mobile-nav-item" type="button" data-page="promotion">Impulsionar</button>
+              <button class="mobile-nav-item" type="button" data-page="integrations">Integrações</button>
+              <button class="mobile-nav-item active" type="button" data-page="assistant">Assistente IA</button>
+              <button class="mobile-nav-item" type="button" data-page="plans">Planos</button>
+              <button class="mobile-nav-item" type="button" data-page="profile">Meu perfil</button>
+            </nav>
+          </details>
           <div class="topbar-label"><span class="live-dot" aria-hidden="true"></span> ESTRATEGISTA DE MARKETING</div>
           <button class="icon-button mobile-logout" type="button" data-app-logout aria-label="Sair do Dinvaro IA" title="Sair do Dinvaro IA"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" /></svg></button>
           <button class="icon-button" id="clear-chat" type="button" aria-label="Limpar conversa" title="Limpar conversa">
@@ -317,24 +498,53 @@
         <div class="chat-scroll" id="chat-scroll">
           <div class="chat-content">
             <div class="welcome" id="welcome">
-              <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> IDEIAS QUE VIRAM CAMPANHAS</div>
-              <h1>Vamos fazer<br><span>seu produto crescer.</span></h1>
-              <p>Oi, eu sou o Dinvaro IA. Posso ajudar com estratégia, oferta e conteúdo.</p>
+              <div class="oracle-hero">
+                <div class="oracle-visual" aria-hidden="true">
+                  <div class="oracle-orbit oracle-orbit-outer"></div>
+                  <div class="oracle-orbit oracle-orbit-middle"></div>
+                  <div class="oracle-orbit oracle-orbit-inner"></div>
+                  <div class="oracle-money-aura">
+                    <span class="oracle-money-emission oracle-money-emission-one"></span>
+                    <span class="oracle-money-emission oracle-money-emission-two"></span>
+                    <span class="oracle-money-emission oracle-money-emission-three"></span>
+                    <span class="oracle-money-mark oracle-money-mark-one">R$</span>
+                    <span class="oracle-money-mark oracle-money-mark-two">$</span>
+                    <span class="oracle-money-mark oracle-money-mark-three">R$</span>
+                    <span class="oracle-money-coin oracle-money-coin-one">¢</span>
+                    <span class="oracle-money-coin oracle-money-coin-two">¢</span>
+                  </div>
+                  <span class="oracle-node oracle-node-one"></span>
+                  <span class="oracle-node oracle-node-two"></span>
+                  <span class="oracle-node oracle-node-three"></span>
+                  <div class="oracle-core"><span class="oracle-core-glint"></span></div>
+                  <span class="oracle-signal oracle-signal-one">IDEIAS</span>
+                  <span class="oracle-signal oracle-signal-two">VALOR</span>
+                  <span class="oracle-signal oracle-signal-three">ESTRATÉGIA</span>
+                </div>
+                <div class="oracle-copy">
+                  <div class="welcome-kicker"><span class="spark" aria-hidden="true">✳</span> DINVARO IA <span class="oracle-live">SISTEMA ATIVO</span></div>
+                  <h1>Transforme ideias<br>em <span>valor real.</span></h1>
+                  <p>Explore formas de criar uma oferta útil, comunicar seus benefícios e planejar como alcançar as pessoas certas. Estratégia e consistência importam — resultados e renda nunca são garantidos.</p>
+                  <div class="oracle-capabilities" aria-label="Áreas de apoio">
+                    <span>OFERTA</span><span>CONTEÚDO</span><span>CRESCIMENTO</span>
+                  </div>
+                </div>
+              </div>
               <div class="suggestions" aria-label="Sugestões de perguntas">
                 <button class="suggestion" type="button" data-prompt="Me ajude a definir uma proposta de valor clara para meu produto digital. Faça as perguntas necessárias primeiro.">
                   <span class="suggestion-icon mint" aria-hidden="true">↗</span>
-                  <span>Definir proposta de valor</span>
-                  <span class="suggestion-arrow" aria-hidden="true">→</span>
+                  <span class="suggestion-copy"><strong>Construir uma oferta</strong><small>Proposta de valor clara e útil</small></span>
+                  <span class="suggestion-arrow" aria-hidden="true">↗</span>
                 </button>
                 <button class="suggestion" type="button" data-prompt="Crie três ideias de anúncios honestos para um produto digital. Pergunte sobre público, benefício e prova antes de escrever.">
                   <span class="suggestion-icon peach" aria-hidden="true">％</span>
-                  <span>Ideias para anúncios</span>
-                  <span class="suggestion-arrow" aria-hidden="true">→</span>
+                  <span class="suggestion-copy"><strong>Alcançar seu público</strong><small>Conteúdo e anúncios honestos</small></span>
+                  <span class="suggestion-arrow" aria-hidden="true">↗</span>
                 </button>
                 <button class="suggestion" type="button" data-prompt="Monte uma sequência de e-mails de lançamento com conteúdo útil, consentimento e opção clara de descadastro.">
                   <span class="suggestion-icon blue" aria-hidden="true">⌁</span>
-                  <span>Planejar um lançamento</span>
-                  <span class="suggestion-arrow" aria-hidden="true">→</span>
+                  <span class="suggestion-copy"><strong>Planejar o próximo passo</strong><small>Um lançamento com estratégia</small></span>
+                  <span class="suggestion-arrow" aria-hidden="true">↗</span>
                 </button>
               </div>
             </div>
@@ -355,6 +565,48 @@
       </section>
     </main>
 
+    <dialog class="integration-dialog mailbox-dialog" id="sales-mailbox-dialog" aria-labelledby="sales-mailbox-title">
+      <div class="integration-dialog-content">
+        <div class="dialog-heading">
+          <div><div class="welcome-kicker">CAIXA DE VENDAS</div><h2 id="sales-mailbox-title">Novas vendas</h2></div>
+          <button class="dialog-close" id="close-sales-mailbox" type="button" aria-label="Fechar notificações">×</button>
+        </div>
+        <p class="integration-dialog-description" id="sales-mailbox-status" role="status">As vendas aprovadas de Kiwify e Cakto aparecem aqui.</p>
+        <div class="mailbox-list" id="sales-notification-list" aria-live="polite"></div>
+        <button class="text-action mailbox-mark-read" id="mark-sales-read" type="button">Marcar todas como lidas</button>
+      </div>
+    </dialog>
+
+    <dialog class="integration-dialog mailbox-dialog gift-mailbox-dialog" id="gift-mailbox-dialog" aria-labelledby="gift-mailbox-title">
+      <div class="integration-dialog-content">
+        <div class="dialog-heading">
+          <div><div class="welcome-kicker">CAIXA DE PRESENTES</div><h2 id="gift-mailbox-title">Presentes</h2></div>
+          <button class="dialog-close" id="close-gift-mailbox" type="button" aria-label="Fechar correio de presentes">×</button>
+        </div>
+        <section class="gift-sender" data-owner-only>
+          <p class="integration-dialog-description">Escolha a conta, o plano e a duração. O presente só será ativado quando a pessoa entrar e resgatá-lo.</p>
+          <form class="gift-send-form" id="gift-send-form">
+            <div><label class="field-label" for="gift-recipient-email">E-mail da conta que receberá</label><input id="gift-recipient-email" name="email" type="email" maxlength="254" autocomplete="off" required></div>
+            <div><label class="field-label" for="gift-title">Nome do presente</label><input id="gift-title" name="title" maxlength="60" placeholder="Ex.: Um presente especial" required></div>
+            <div><label class="field-label" for="gift-message">Mensagem</label><textarea id="gift-message" name="message" rows="3" maxlength="500" placeholder="Escreva uma mensagem para a pessoa." required></textarea></div>
+            <div class="form-row">
+              <div><label class="field-label" for="gift-plan">Plano</label><select id="gift-plan" name="planId"><option value="pro">Pro</option><option value="premium">Premium</option></select></div>
+              <div><label class="field-label" for="gift-duration">Duração</label><select id="gift-duration" name="duration"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">365 dias</option><option value="permanent">Permanente</option></select></div>
+            </div>
+            <div class="generation-actions"><button class="save-transaction" id="send-gift-button" type="submit">Enviar presente</button><span class="generation-status" id="gift-send-status" role="status">A conta precisa estar cadastrada no Dinvaro IA.</span></div>
+          </form>
+          <div class="gift-sent-list" id="gift-sent-list" aria-live="polite"></div>
+        </section>
+        <section class="gift-recipient" data-member-only>
+          <p class="integration-dialog-description">Os presentes enviados para esta conta ficam guardados aqui até serem resgatados.</p>
+          <div class="mailbox-list" id="gift-recipient-list" aria-live="polite"></div>
+          <p class="generation-status" id="gift-recipient-status" role="status"></p>
+          <div class="gift-sent-heading"><strong>Presentes que você enviou</strong><span>Compras únicas · sem renovação</span></div>
+          <div class="gift-sent-list" id="gift-purchases-sent-list" aria-live="polite"></div>
+        </section>
+      </div>
+    </dialog>
+
     <dialog class="integration-dialog" id="integration-dialog" aria-labelledby="integration-dialog-title">
       <div class="integration-dialog-content">
         <div class="dialog-heading"><div><div class="welcome-kicker">CONFIGURAÇÃO DE CANAL</div><h2 id="integration-dialog-title">Conectar plataforma</h2></div><button class="dialog-close" id="close-integration-dialog" type="button" aria-label="Fechar">×</button></div>
@@ -369,6 +621,7 @@
       <form class="brief-form" id="money-entry-form">
         <div class="dialog-heading"><div><div class="welcome-kicker">CONTROLE DE RESULTADOS</div><h2 id="money-entry-title">Registrar movimentação</h2></div><button class="dialog-close" id="close-money-entry" type="button" aria-label="Fechar">×</button></div>
         <div><label class="field-label" for="money-entry-type">Tipo</label><select id="money-entry-type" name="type"><option value="sale">Venda aprovada</option><option value="deposit">Depósito registrado</option><option value="ad">Gasto com anúncios</option><option value="fee">Taxa da plataforma</option><option value="refund">Reembolso</option><option value="withdrawal">Saque já realizado</option></select></div>
+        <div><label class="field-label" for="money-entry-platform">Plataforma</label><select id="money-entry-platform" name="platform"><option value="">Não atribuída</option><option value="kiwify">Kiwify</option><option value="cakto">Cakto</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option><option value="facebook">Facebook</option><option value="youtube">YouTube</option><option value="hotmart">Hotmart</option></select></div>
         <div class="form-row"><div><label class="field-label" for="money-entry-amount">Valor (R$)</label><input id="money-entry-amount" name="amount" type="number" min="0.01" max="100000000" step="0.01" placeholder="0,00" required></div><div><label class="field-label" for="money-entry-date">Data</label><input id="money-entry-date" name="date" type="date" required></div></div>
         <div><label class="field-label" for="money-entry-note">Referência (opcional)</label><input id="money-entry-note" name="note" maxlength="100" placeholder="Ex.: venda do e-book"></div>
         <div class="generation-actions"><button class="save-transaction" type="submit">Salvar registro</button><span class="generation-status">Registro manual: não realiza transferências nem altera o saldo do checkout.</span></div>
@@ -391,14 +644,17 @@
         <div class="dialog-heading"><div><div class="welcome-kicker">CONFIRMAÇÃO DE SAQUE</div><h2 id="secure-withdrawal-title">Solicitar saque</h2></div><button class="dialog-close" id="close-secure-withdrawal" type="button" aria-label="Fechar">×</button></div>
         <p class="integration-dialog-description" id="secure-withdrawal-summary">Saldo verificado na plataforma selecionada.</p>
         <div><label class="field-label" for="secure-withdrawal-amount">Valor do saque (R$)</label><input id="secure-withdrawal-amount" name="amount" type="number" min="0.01" max="100000000" step="0.01" required></div>
-        <label class="withdrawal-confirm-label"><input id="secure-withdrawal-confirm" type="checkbox" required><span>Confirmo que quero solicitar este saque. A plataforma pode aplicar taxas, análise e prazo de processamento.</span></label>
+        <fieldset class="payout-method-fieldset"><legend class="field-label">Como quer receber?</legend><label class="payout-method-option"><input id="payout-method-pix" name="payoutMethod" type="radio" value="pix" required checked><span><strong>Pix</strong><small>Enviado para a chave Pix cadastrada na plataforma selecionada.</small></span></label></fieldset>
+        <div class="pix-registration-notice"><p id="secure-withdrawal-pix-notice">Confira se sua chave Pix está cadastrada na plataforma. O Dinvaro IA não salva nem altera a chave; o saque usa os dados registrados na conta da plataforma.</p><a class="integration-doc-link" id="secure-withdrawal-pix-link" href="https://kiwify.com.br/" target="_blank" rel="noopener noreferrer">Abrir painel da plataforma <span aria-hidden="true">↗</span></a></div>
+        <div><label class="field-label" for="secure-withdrawal-pix-confirmed">A chave Pix está cadastrada na conta desta plataforma?</label><select class="withdrawal-select" id="secure-withdrawal-pix-confirmed" required><option value="">Selecione uma opção</option><option value="yes">Sim, está cadastrada</option><option value="no">Não, preciso cadastrar</option></select></div>
+        <label class="withdrawal-confirm-label"><input id="secure-withdrawal-confirm" type="checkbox" required><span>Confirmo que quero solicitar este saque. Taxas e prazos seguem as regras da plataforma.</span></label>
         <div class="generation-actions"><button class="save-transaction" id="submit-secure-withdrawal" type="submit">Confirmar solicitação</button><span class="generation-status" id="secure-withdrawal-status" role="status">A plataforma continuará responsável pelo processamento.</span></div>
       </form>
     </dialog>
 
-    <div class="mascot-stage" id="mascot-stage" aria-hidden="true" hidden>
-      <div class="app-mascot" id="app-mascot" data-direction="right">
-        <div class="mascot-bubble" id="mascot-bubble"></div>
+    <div class="mascot-stage" id="mascot-stage" role="group" aria-label="Mascotes interativos" hidden>
+      <button class="app-mascot" id="app-mascot" type="button" data-direction="right" aria-label="Conversar com Din">
+        <span class="mascot-bubble" id="mascot-bubble" aria-hidden="true"></span>
         <svg class="mascot-sprite" viewBox="0 0 36 42" focusable="false">
           <ellipse cx="18" cy="39" rx="10" ry="2" fill="#07110f" opacity=".18" />
           <path class="mascot-leg mascot-leg-back" d="M13 31v5l-3 2h7v-7m8 0v5l3 2h-7v-7" fill="#23463b" stroke="#102d25" stroke-width="1" stroke-linejoin="round" />
@@ -412,8 +668,50 @@
           <path d="M11 24c3 2 9 2 14 0" fill="none" stroke="#d7f0b0" stroke-width="1.2" stroke-linecap="round" />
           <path d="M8 29c-2-2-3-1-3 1s2 3 4 3m19-4c2-2 3-1 3 1s-2 3-4 3" fill="#69bd91" stroke="#245542" stroke-width="1.3" stroke-linecap="round" />
         </svg>
-      </div>
+      </button>
+      <button class="app-mascot app-mascot-partner" id="app-mascot-partner" type="button" data-direction="left" aria-label="Conversar com Var">
+        <span class="mascot-bubble" id="mascot-bubble-partner" aria-hidden="true"></span>
+        <svg class="mascot-sprite mascot-sprite-orb" viewBox="0 0 42 46" focusable="false">
+          <ellipse cx="21" cy="43" rx="12" ry="2" fill="#07110f" opacity=".22" />
+          <path d="M21 2v5m-8 1 3 4m13-4-3 4" fill="none" stroke="#77f4dd" stroke-width="1.5" stroke-linecap="round" />
+          <circle cx="21" cy="2" r="2" fill="#b9fff0" />
+          <path d="M9 19a12 12 0 1 1 24 0v12l-5 5H14l-5-5V19Z" fill="#4a8f9b" stroke="#24545e" stroke-width="1.5" stroke-linejoin="round" />
+          <path d="M12 19a9 9 0 0 1 18 0v7H12v-7Z" fill="#b7f5e7" />
+          <path d="M14 20a2 2 0 1 1 4 0m6 0a2 2 0 1 1 4 0" fill="#12363d" />
+          <path d="M18 24q3 3 6 0" fill="none" stroke="#39766d" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M13 30h16m-13 4h10" stroke="#b3fff0" stroke-width="1.4" stroke-linecap="round" />
+          <circle cx="9" cy="23" r="2" fill="#8df8dc" />
+          <circle cx="33" cy="23" r="2" fill="#8df8dc" />
+          <path d="M15 36v4m12-4v4" stroke="#396f78" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+      </button>
     </div>
+
+    <dialog class="mascot-dialog" id="mascot-dialog" aria-labelledby="mascot-dialog-title">
+      <div class="mascot-dialog-content">
+        <aside class="mascot-profile" id="mascot-profile">
+          <div class="mascot-profile-avatar" aria-hidden="true"><span id="mascot-profile-initial">D</span><i></i></div>
+          <span class="mascot-profile-status"><span></span> disponível</span>
+          <h2 id="mascot-dialog-title">Din</h2>
+          <p class="mascot-profile-role" id="mascot-profile-role">Seu guia de campanhas</p>
+          <p class="mascot-profile-bio" id="mascot-profile-bio">Gosto de transformar ideias em próximos passos simples. Pode falar comigo sem formalidade.</p>
+          <div class="mascot-profile-tags" id="mascot-profile-tags"><span>Campanhas</span><span>Conteúdo</span></div>
+        </aside>
+        <section class="mascot-chat-panel" aria-label="Conversa com o mascote">
+          <div class="dialog-heading mascot-chat-heading">
+            <div><div class="welcome-kicker">CONVERSA PARTICULAR</div><p>As respostas são programadas para ajudar você a navegar pelo app.</p></div>
+            <button class="dialog-close" id="close-mascot-dialog" type="button" aria-label="Fechar conversa">×</button>
+          </div>
+          <div class="mascot-dialog-log" id="mascot-dialog-log" aria-live="polite" aria-relevant="additions"></div>
+          <div class="mascot-dialog-choices" id="mascot-dialog-choices"></div>
+          <form class="mascot-chat-composer" id="mascot-chat-form">
+            <label class="visually-hidden" for="mascot-chat-input">Escreva para o mascote</label>
+            <input id="mascot-chat-input" maxlength="240" autocomplete="off" placeholder="Escreva uma mensagem..." required>
+            <button type="submit" aria-label="Enviar mensagem">Enviar <span aria-hidden="true">➤</span></button>
+          </form>
+        </div>
+      </div>
+    </dialog>
 
   </body>
 </html>
